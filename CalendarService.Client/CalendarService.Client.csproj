@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+    <Authors>tuwrraphael</Authors>
+    <PackageProjectUrl>https://github.com/tuwrraphael/CalendarService</PackageProjectUrl>
+    <PackageTags>CalendarService client</PackageTags>
+    <Description>Client for calendar service</Description>
+    <RepositoryUrl>https://github.com/tuwrraphael/CalendarService</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CalendarService.Models" Version="0.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OAuthApiClient\OAuthApiClient.csproj" />
+  </ItemGroup>
+
+</Project>

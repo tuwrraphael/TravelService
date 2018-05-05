@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelService", "TravelService\TravelService.csproj", "{D98F882A-5F4E-4166-BF20-FC437B8802E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TravelService", "TravelService\TravelService.csproj", "{D98F882A-5F4E-4166-BF20-FC437B8802E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TravelService.Models", "TravelService.Models\TravelService.Models.csproj", "{F329DEAC-06C9-4756-8187-701D9A4A724A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalendarService.Client", "CalendarService.Client\CalendarService.Client.csproj", "{EC1FDCFC-B15E-4CF9-8F5F-E81FC0880297}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuthApiClient", "OAuthApiClient\OAuthApiClient.csproj", "{B5262313-2732-44DE-9FC1-110C70409984}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{D98F882A-5F4E-4166-BF20-FC437B8802E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D98F882A-5F4E-4166-BF20-FC437B8802E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D98F882A-5F4E-4166-BF20-FC437B8802E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F329DEAC-06C9-4756-8187-701D9A4A724A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F329DEAC-06C9-4756-8187-701D9A4A724A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F329DEAC-06C9-4756-8187-701D9A4A724A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F329DEAC-06C9-4756-8187-701D9A4A724A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC1FDCFC-B15E-4CF9-8F5F-E81FC0880297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC1FDCFC-B15E-4CF9-8F5F-E81FC0880297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC1FDCFC-B15E-4CF9-8F5F-E81FC0880297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC1FDCFC-B15E-4CF9-8F5F-E81FC0880297}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5262313-2732-44DE-9FC1-110C70409984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5262313-2732-44DE-9FC1-110C70409984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5262313-2732-44DE-9FC1-110C70409984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5262313-2732-44DE-9FC1-110C70409984}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
