@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.0</Version>
     <Authors>tuwrraphael</Authors>
-    <PackageProjectUrl>https://tuwrraphael.github.io/TravelService</PackageProjectUrl>
+    <PackageProjectUrl>https://tuwrraphael.github.io/TravelService/</PackageProjectUrl>
     <PackageTags>TravelService client</PackageTags>
     <Description>HttpClient for TravelService api</Description>
     <RepositoryUrl>https://github.com/tuwrraphael/TravelService</RepositoryUrl>
