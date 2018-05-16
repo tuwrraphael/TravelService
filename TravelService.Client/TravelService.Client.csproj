@@ -2,14 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.0</Version>
     <Authors>tuwrraphael</Authors>
     <PackageProjectUrl>https://tuwrraphael.github.io/TravelService</PackageProjectUrl>
-    <PackageTags>TravelService client models</PackageTags>
-    <Description>Models for HttpClient for TravelService api</Description>
+    <PackageTags>TravelService client</PackageTags>
+    <Description>HttpClient for TravelService api</Description>
     <RepositoryUrl>https://github.com/tuwrraphael/TravelService</RepositoryUrl>
     <NeutralLanguage>en</NeutralLanguage>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OAuthApiClient" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TravelService.Models\TravelService.Models.csproj" />
+  </ItemGroup>
 
 </Project>

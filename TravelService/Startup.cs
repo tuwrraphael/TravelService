@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OAuthApiClient;
 using TravelService.Impl;
 using TravelService.Services;
 
@@ -41,8 +42,14 @@ namespace TravelService
 
             services.Configure<GoogleMapsApiOptions>(Configuration);
 
-            services.Configure<CalendarServiceOptions>(Configuration);
-            services.AddCalendarServiceClient();
+            services.AddCalendarServiceClient(new Uri(Configuration["CalendarServiceBaseUri"]))
+                .AddClientCredentialsAuthentication(new ClientCredentialsConfig()
+                {
+                    ClientSecret = Configuration["CalendarServiceClientSecret"],
+                    ClientId = Configuration["CalendarServiceClientId"],
+                    Scopes = "calendar.service",
+                    ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
+                });
 
             services.AddMvc().AddJsonOptions(v =>
             {

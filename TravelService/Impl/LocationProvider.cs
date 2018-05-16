@@ -17,7 +17,7 @@ namespace TravelService
 
         public async Task<string> GetUserLocationAsync(string userId)
         {
-            var evt = await client.GetCurrentEvent(userId);
+            var evt = await client.GetCurrentEventAsync(userId);
             if (null == evt)
             {
                 throw new UserLocationNotFoundException();
