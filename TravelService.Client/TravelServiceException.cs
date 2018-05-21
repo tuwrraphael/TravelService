@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace TravelService.Client
 {
     [Serializable]
-    internal class TravelServiceException : Exception
+    public class TravelServiceException : Exception
     {
         public TravelServiceException()
         {

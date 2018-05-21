@@ -42,14 +42,17 @@ namespace TravelService
 
             services.Configure<GoogleMapsApiOptions>(Configuration);
 
-            services.AddCalendarServiceClient(new Uri(Configuration["CalendarServiceBaseUri"]))
-                .AddClientCredentialsAuthentication(new ClientCredentialsConfig()
-                {
-                    ClientSecret = Configuration["CalendarServiceClientSecret"],
-                    ClientId = Configuration["CalendarServiceClientId"],
-                    Scopes = "calendar.service",
-                    ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
-                });
+            var authProviderBuilder = new BearerTokenAuthenticationProviderBuilder(services, "travelService");
+            authProviderBuilder.UseMemoryCacheTokenStore();
+            authProviderBuilder.UseClientCredentialsTokenStrategy(new ClientCredentialsConfig()
+            {
+                ClientSecret = Configuration["TravelServiceSecret"],
+                ClientId = Configuration["TravelServiceClientId"],
+                Scopes = "calendar.service",
+                ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
+            });
+
+            services.AddCalendarServiceClient(new Uri(Configuration["CalendarServiceBaseUri"]), authProviderBuilder);
 
             services.AddMvc().AddJsonOptions(v =>
             {
@@ -68,7 +71,7 @@ namespace TravelService
                 .AddJwtBearer(options =>
                 {
                     options.Authority = Configuration["ServiceIdentityUrl"];
-                    options.Audience = "digit";
+                    options.Audience = "travel";
                     options.RequireHttpsMetadata = false;
                 });
 
@@ -77,7 +80,7 @@ namespace TravelService
                 options.AddPolicy("User", builder =>
                {
                    builder.RequireAuthenticatedUser();
-                   builder.RequireClaim("scope", "digit.user");
+                   builder.RequireClaim("scope", "travel.user");
                });
             });
 
@@ -85,7 +88,7 @@ namespace TravelService
             {
                 options.AddPolicy("Service", builder =>
                 {
-                    builder.RequireClaim("scope", "digit.service");
+                    builder.RequireClaim("scope", "travel.service");
                 });
             });
         }

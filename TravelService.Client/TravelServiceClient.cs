@@ -13,10 +13,10 @@ namespace TravelService.Client
 {
     public class TravelServiceClient : ITravelServiceClient
     {
-        private readonly IAuthenticationProvider<ITravelServiceClient> authenticationProvider;
+        private readonly IAuthenticationProvider authenticationProvider;
         private readonly TravelServiceOptions options;
 
-        public TravelServiceClient(IAuthenticationProvider<ITravelServiceClient> authenticationProvider, IOptions<TravelServiceOptions> optionsAccessor)
+        public TravelServiceClient(IAuthenticationProvider authenticationProvider, IOptions<TravelServiceOptions> optionsAccessor)
         {
             this.authenticationProvider = authenticationProvider;
             options = optionsAccessor.Value;
@@ -74,7 +74,7 @@ namespace TravelService.Client
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/{userId}/directions/transit?{query.ToString()}");
             }
 
@@ -83,7 +83,7 @@ namespace TravelService.Client
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startAddress"] = startAddress;
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
 
@@ -93,7 +93,7 @@ namespace TravelService.Client
                 query["startLat"] = startAddress.Lat.ToString(CultureInfo.InvariantCulture);
                 query["startLng"] = startAddress.Lng.ToString(CultureInfo.InvariantCulture);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
         }

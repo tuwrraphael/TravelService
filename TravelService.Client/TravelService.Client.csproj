@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
+    <Version>1.0.3</Version>
     <Authors>tuwrraphael</Authors>
     <PackageProjectUrl>https://tuwrraphael.github.io/TravelService/</PackageProjectUrl>
     <PackageTags>TravelService client</PackageTags>
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OAuthApiClient" Version="1.0.0" />
+    <PackageReference Include="OAuthApiClient" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
