@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using DigitService.Client;
 using OAuthApiClient;
 using TravelService.Impl;
 using TravelService.Services;
@@ -42,17 +42,18 @@ namespace TravelService
 
             services.Configure<GoogleMapsApiOptions>(Configuration);
 
-            var authProviderBuilder = new BearerTokenAuthenticationProviderBuilder(services, "travelService");
-            authProviderBuilder.UseMemoryCacheTokenStore();
-            authProviderBuilder.UseClientCredentialsTokenStrategy(new ClientCredentialsConfig()
+            var authProviderBuilder = services.AddBearerTokenAuthenticationProvider("travelService")
+                .UseMemoryCacheTokenStore()
+                .UseClientCredentialsTokenStrategy(new ClientCredentialsConfig()
             {
                 ClientSecret = Configuration["TravelServiceSecret"],
                 ClientId = Configuration["TravelServiceClientId"],
-                Scopes = "calendar.service",
+                Scopes = "calendar.service digit.service",
                 ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
             });
 
             services.AddCalendarServiceClient(new Uri(Configuration["CalendarServiceBaseUri"]), authProviderBuilder);
+            services.AddDigitServiceClient(new Uri(Configuration["DigitServiceBaseUri"]), authProviderBuilder);
 
             services.AddMvc().AddJsonOptions(v =>
             {

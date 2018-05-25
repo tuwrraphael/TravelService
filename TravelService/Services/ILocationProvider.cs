@@ -5,6 +5,6 @@ namespace TravelService.Services
 {
     public interface ILocationProvider
     {
-        Task<string> GetUserLocationAsync(string userId);
+        Task<UserLocation> GetUserLocationAsync(string userId);
     }
 }

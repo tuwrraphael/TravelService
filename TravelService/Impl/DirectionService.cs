@@ -23,22 +23,26 @@ namespace TravelService.Impl
             this.geocodeProvider = geocodeProvider;
         }
 
+        private async Task<TransitDirections> GetTransitAsync(UserLocation start, string endAddress, DateTime arrivalTime)
+        {
+            var directionTasks = transitDirectionProviders.Select(v => v.GetDirectionsAsync(start, endAddress, arrivalTime));
+            return new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() };
+        }
+
         public async Task<TransitDirections> GetTransitAsync(string startAddress, string endAddress, DateTime arrivalTime)
         {
-            var directionTasks = transitDirectionProviders.Select(v => v.GetDirectionsAsync(startAddress, endAddress, arrivalTime));
-            return new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() };
+            return await GetTransitAsync(new UserLocation(startAddress), endAddress, arrivalTime);
         }
 
         public async Task<TransitDirections> GetTransitAsync(Coordinate start, string endAddress, DateTime arrivalTime)
         {
-            var startAddress = await geocodeProvider.GetAddressAsync(start);
-            return await GetTransitAsync(startAddress, endAddress, arrivalTime);
+            return await GetTransitAsync(new UserLocation(start), endAddress, arrivalTime);
         }
 
         public async Task<TransitDirections> GetTransitForUserAsync(string userId, string endAddress, DateTime arrivalTime)
         {
-            var startAddress = await locationProvider.GetUserLocationAsync(userId);
-            return await GetTransitAsync(startAddress, endAddress, arrivalTime);
+            var start = await locationProvider.GetUserLocationAsync(userId);
+            return await GetTransitAsync(start, endAddress, arrivalTime);
         }
     }
 }

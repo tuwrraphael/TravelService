@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using TravelService.Models;
@@ -17,16 +18,25 @@ namespace TravelService.Impl
             options = optionsAccessor.Value;
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(string startAddress, string endAddress, DateTime arrivalTime)
+        public async Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, string endAddress, DateTime arrivalTime)
         {
-            var res = await GoogleMapsApi.GoogleMaps.Directions.QueryAsync(new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
+            var request = new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
             {
-                Origin = startAddress,
                 Destination = endAddress,
                 ArrivalTime = arrivalTime,
                 TravelMode = GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit,
                 ApiKey = options.GoogleMapsApiKey
-            });
+            };
+            if (null != startAddress.Coordinate)
+            {
+                request.Origin = $"{startAddress.Coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{startAddress.Coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
+            }
+            else
+            {
+                request.Origin = startAddress.Address;
+            }
+
+            var res = await GoogleMapsApi.GoogleMaps.Directions.QueryAsync(request);
 
             if (!res.Routes.Any())
             {

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Services;
@@ -17,7 +18,16 @@ namespace TravelService.Impl
 
         public async Task<string> GetAddressAsync(Coordinate start)
         {
-            return "Polgarstraﬂe 32, 1220 Wien";
+            var res = await GoogleMapsApi.GoogleMaps.Geocode.QueryAsync(new GoogleMapsApi.Entities.Geocoding.Request.GeocodingRequest()
+            {
+                 ApiKey = options.GoogleMapsApiKey,
+                 Location = new GoogleMapsApi.Entities.Common.Location(start.Lat, start.Lng)
+            });
+            if (null != res.Results && res.Results.Any())
+            {
+                return res.Results.First().FormattedAddress;
+            }
+            return null;
         }
     }
 }
