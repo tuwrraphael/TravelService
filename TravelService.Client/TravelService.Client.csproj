@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.0.6</Version>
     <Authors>tuwrraphael</Authors>
     <PackageProjectUrl>https://tuwrraphael.github.io/TravelService/</PackageProjectUrl>
     <PackageTags>TravelService client</PackageTags>
@@ -14,7 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OAuthApiClient" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="OAuthApiClient.Abstractions" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>

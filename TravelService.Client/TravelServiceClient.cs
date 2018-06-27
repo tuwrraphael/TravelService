@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using OAuthApiClient;
+using OAuthApiClient.Abstractions;
 using System;
 using System.Globalization;
 using System.Net.Http;
