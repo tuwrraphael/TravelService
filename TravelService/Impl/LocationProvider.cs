@@ -25,7 +25,19 @@ namespace TravelService
             var evt = await client.GetCurrentEventAsync(userId);
             if (null != evt)
             {
-                return new UserLocation(evt.Location);
+                if (evt.Location.Coordinate != null)
+                {
+                    return new UserLocation(new Coordinate()
+                    {
+                        Lng = evt.Location.Coordinate.Longitude,
+                        Lat = evt.Location.Coordinate.Latitude
+                    });
+                }
+                if (evt.Location.Address != null)
+                {
+                    return new UserLocation($"{evt.Location.Address.Street} {evt.Location.Address.PostalCode} {evt.Location.Address.City} {evt.Location.Address.CountryOrRegion}");
+                }
+                return new UserLocation(evt.Location.Text);
             }
             var loc = await digitServiceClient.Location[userId].GetAsync();
             if (null != loc)

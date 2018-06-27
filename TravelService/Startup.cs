@@ -11,6 +11,7 @@ using DigitService.Client;
 using OAuthApiClient;
 using TravelService.Impl;
 using TravelService.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TravelService
 {
@@ -58,7 +59,8 @@ namespace TravelService
             services.AddMvc().AddJsonOptions(v =>
             {
                 v.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
-            });
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
@@ -100,7 +102,11 @@ namespace TravelService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }else
+            {
+                app.UseHsts();
             }
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseCors("CorsPolicy");
             app.UseMvc();
