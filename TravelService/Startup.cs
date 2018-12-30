@@ -12,6 +12,8 @@ using OAuthApiClient;
 using TravelService.Impl;
 using TravelService.Services;
 using Microsoft.AspNetCore.Mvc;
+using TravelService.Impl.EF;
+using Microsoft.EntityFrameworkCore;
 
 namespace TravelService
 {
@@ -35,23 +37,28 @@ namespace TravelService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<TravelServiceContext>(options =>
+                options.UseSqlite($"Data Source={HostingEnvironment.WebRootPath}\\App_Data\\travelService.db")
+            );
             services.AddTransient<IDirectionService, DirectionService>();
             services.AddTransient<ITransitDirectionProvider, GoogleMapsTransitDirectionProvider>();
             services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
+            services.AddTransient<ILocationsProvider, GoogleMapsLocationsProvider>();
+            services.AddTransient<ILocationsService, LocationsService>();
+            services.AddTransient<IResolvedLocationsStore, ResolvedLocationsStore>();
 
             services.Configure<GoogleMapsApiOptions>(Configuration);
 
             var authProviderBuilder = services.AddBearerTokenAuthenticationProvider("travelService")
                 .UseMemoryCacheTokenStore()
                 .UseClientCredentialsTokenStrategy(new ClientCredentialsConfig()
-            {
-                ClientSecret = Configuration["TravelServiceSecret"],
-                ClientId = Configuration["TravelServiceClientId"],
-                Scopes = "calendar.service digit.service",
-                ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
-            });
+                {
+                    ClientSecret = Configuration["TravelServiceSecret"],
+                    ClientId = Configuration["TravelServiceClientId"],
+                    Scopes = "calendar.service digit.service",
+                    ServiceIdentityBaseUrl = new Uri(Configuration["ServiceIdentityUrl"])
+                });
 
             services.AddCalendarServiceClient(new Uri(Configuration["CalendarServiceBaseUri"]), authProviderBuilder);
             services.AddDigitServiceClient(new Uri(Configuration["DigitServiceBaseUri"]), authProviderBuilder);
@@ -102,7 +109,8 @@ namespace TravelService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }else
+            }
+            else
             {
                 app.UseHsts();
             }

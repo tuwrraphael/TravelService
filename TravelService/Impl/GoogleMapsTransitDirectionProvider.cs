@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Models.Directions;
+using TravelService.Models.Locations;
 using TravelService.Services;
 
 namespace TravelService.Impl
@@ -18,24 +19,42 @@ namespace TravelService.Impl
             options = optionsAccessor.Value;
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, string endAddress, DateTime arrivalTime)
+        private string FormatDestination(ResolvedLocation resolvedLocation)
+        {
+            if (null != resolvedLocation.Coordinate)
+            {
+                return $"{resolvedLocation.Coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{resolvedLocation.Coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
+            }
+            if (null != resolvedLocation.Attributes &&
+                resolvedLocation.Attributes.ContainsKey("GoogleMapsPlaceId"))
+            {
+                return $"place_id:{resolvedLocation.Attributes["GoogleMapsPlaceId"]}";
+            }
+            return resolvedLocation.Address;
+        }
+
+        private string FormatStart(UserLocation startAddress)
+        {
+            if (null != startAddress.Coordinate)
+            {
+                return $"{startAddress.Coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{startAddress.Coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
+            }
+            else
+            {
+                return startAddress.Address;
+            }
+        }
+
+        public async Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, ResolvedLocation endAddress, DateTime arrivalTime)
         {
             var request = new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
             {
-                Destination = endAddress,
+                Destination = FormatDestination(endAddress),
+                Origin = FormatStart(startAddress),
                 ArrivalTime = arrivalTime,
                 TravelMode = GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit,
                 ApiKey = options.GoogleMapsApiKey
             };
-            if (null != startAddress.Coordinate)
-            {
-                request.Origin = $"{startAddress.Coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{startAddress.Coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
-            }
-            else
-            {
-                request.Origin = startAddress.Address;
-            }
-
             var res = await GoogleMapsApi.GoogleMaps.Directions.QueryAsync(request);
 
             if (!res.Routes.Any())
