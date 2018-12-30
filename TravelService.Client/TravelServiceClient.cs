@@ -65,7 +65,7 @@ namespace TravelService.Client
                     var key = res.Headers.ETag.Tag;
                     return new DirectionsResult()
                     {
-                        CacheKey = key,
+                        CacheKey = key?.Replace("\"", string.Empty),
                         TransitDirections = directions
                     };
                 }
@@ -80,7 +80,7 @@ namespace TravelService.Client
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/{userId}/directions/transit?{query.ToString()}");
             }
 
@@ -89,7 +89,7 @@ namespace TravelService.Client
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startAddress"] = startAddress;
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
 
@@ -99,7 +99,7 @@ namespace TravelService.Client
                 query["startLat"] = startAddress.Lat.ToString(CultureInfo.InvariantCulture);
                 query["startLng"] = startAddress.Lng.ToString(CultureInfo.InvariantCulture);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
+                query["arrivalTime"] = arrivalTime.ToString("o");
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
         }
