@@ -15,24 +15,27 @@ namespace TravelService.Impl
         private readonly IEnumerable<ITransitDirectionProvider> transitDirectionProviders;
         private readonly IGeocodeProvider geocodeProvider;
         private readonly ILocationsService locationsService;
+        private readonly IDirectionsCache directionsCache;
 
         public DirectionService(ILocationProvider locationProvider, IEnumerable<ITransitDirectionProvider> transitDirectionProviders,
             IGeocodeProvider geocodeProvider,
-            ILocationsService locationsService)
+            ILocationsService locationsService,
+            IDirectionsCache directionsCache)
         {
             this.locationProvider = locationProvider;
             this.transitDirectionProviders = transitDirectionProviders;
             this.geocodeProvider = geocodeProvider;
             this.locationsService = locationsService;
+            this.directionsCache = directionsCache;
         }
 
-        private async Task<TransitDirections> GetTransitAsync(UserLocation start, ResolvedLocation endAddress, DateTime arrivalTime)
+        private async Task<DirectionsResult> GetTransitAsync(UserLocation start, ResolvedLocation endAddress, DateTimeOffset arrivalTime)
         {
             var directionTasks = transitDirectionProviders.Select(v => v.GetDirectionsAsync(start, endAddress, arrivalTime));
-            return new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() };
+            return await directionsCache.PutAsync(new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() });
         }
 
-        public async Task<TransitDirections> GetTransitAsync(string startAddress, string endAddress, DateTime arrivalTime)
+        public async Task<DirectionsResult> GetTransitAsync(string startAddress, string endAddress, DateTimeOffset arrivalTime)
         {
             return await GetTransitAsync(new UserLocation(startAddress), new ResolvedLocation()
             {
@@ -40,7 +43,7 @@ namespace TravelService.Impl
             }, arrivalTime);
         }
 
-        public async Task<TransitDirections> GetTransitAsync(Coordinate start, string endAddress, DateTime arrivalTime)
+        public async Task<DirectionsResult> GetTransitAsync(Coordinate start, string endAddress, DateTimeOffset arrivalTime)
         {
             return await GetTransitAsync(new UserLocation(start), new ResolvedLocation()
             {
@@ -48,7 +51,7 @@ namespace TravelService.Impl
             }, arrivalTime);
         }
 
-        public async Task<TransitDirections> GetTransitForUserAsync(string userId, string endAddress, DateTime arrivalTime)
+        public async Task<DirectionsResult> GetTransitForUserAsync(string userId, string endAddress, DateTimeOffset arrivalTime)
         {
             var start = await locationProvider.GetUserLocationAsync(userId);
             var resolved = (await locationsService.ResolveAsync(endAddress, userId)) ?? new ResolvedLocation()

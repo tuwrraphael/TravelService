@@ -12,7 +12,7 @@ namespace TravelService.Models
         [BindRequired]
         public string EndAddress { get; set; }
         [BindRequired]
-        public DateTime ArrivalTime { get; set; }
+        public DateTimeOffset ArrivalTime { get; set; }
 
     }
 }

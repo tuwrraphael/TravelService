@@ -55,13 +55,19 @@ namespace TravelService.Client
                 this.clientFactory = clientFactory;
             }
 
-            private async Task<TransitDirections> Get(string url)
+            private async Task<DirectionsResult> Get(string url)
             {
                 var res = await (await clientFactory()).GetAsync(url);
                 if (res.IsSuccessStatusCode)
                 {
                     var content = await res.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<TransitDirections>(content);
+                    var directions = JsonConvert.DeserializeObject<TransitDirections>(content);
+                    var key = res.Headers.ETag.Tag;
+                    return new DirectionsResult()
+                    {
+                        CacheKey = key,
+                        TransitDirections = directions
+                    };
                 }
                 else if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
@@ -70,30 +76,30 @@ namespace TravelService.Client
                 throw new TravelServiceException($"Could not get transit directions: {res.StatusCode}");
             }
 
-            public async Task<TransitDirections> Get(string endAddress, DateTime arrivalTime, string userId)
+            public async Task<DirectionsResult> Get(string endAddress, DateTimeOffset arrivalTime, string userId)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
+                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
                 return await Get($"api/{userId}/directions/transit?{query.ToString()}");
             }
 
-            public async Task<TransitDirections> Get(string startAddress, string endAddress, DateTime arrivalTime)
+            public async Task<DirectionsResult> Get(string startAddress, string endAddress, DateTimeOffset arrivalTime)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startAddress"] = startAddress;
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
+                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
 
-            public async Task<TransitDirections> Get(Coordinate startAddress, string endAddress, DateTime arrivalTime)
+            public async Task<DirectionsResult> Get(Coordinate startAddress, string endAddress, DateTimeOffset arrivalTime)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startLat"] = startAddress.Lat.ToString(CultureInfo.InvariantCulture);
                 query["startLng"] = startAddress.Lng.ToString(CultureInfo.InvariantCulture);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
+                query["arrivalTime"] = JsonConvert.SerializeObject(arrivalTime);
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
         }

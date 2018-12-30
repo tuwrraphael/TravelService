@@ -8,6 +8,6 @@ namespace TravelService.Services
 {
     public interface ITransitDirectionProvider
     {
-        Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, ResolvedLocation endAddress, DateTime arrivalTime);
+        Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, ResolvedLocation endAddress, DateTimeOffset arrivalTime);
     }
 }

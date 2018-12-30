@@ -7,8 +7,8 @@ namespace TravelService.Services
 {
     public interface IDirectionService
     {
-        Task<TransitDirections> GetTransitAsync(string startAddress, string endAddress, DateTime arrivalTime);
-        Task<TransitDirections> GetTransitAsync(Coordinate start, string endAddress, DateTime arrivalTime);
-        Task<TransitDirections> GetTransitForUserAsync(string userId, string endAddress, DateTime arrivalTime);
+        Task<DirectionsResult> GetTransitAsync(string startAddress, string endAddress, DateTimeOffset arrivalTime);
+        Task<DirectionsResult> GetTransitAsync(Coordinate start, string endAddress, DateTimeOffset arrivalTime);
+        Task<DirectionsResult> GetTransitForUserAsync(string userId, string endAddress, DateTimeOffset arrivalTime);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +11,13 @@ namespace TravelService.Controllers
     public class DirectionsController : Controller
     {
         private readonly IDirectionService directionsService;
+        private readonly IDirectionsCache directionsCache;
 
-        public DirectionsController(IDirectionService directionsService)
+        public DirectionsController(IDirectionService directionsService,
+            IDirectionsCache directionsCache)
         {
             this.directionsService = directionsService;
+            this.directionsCache = directionsCache;
         }
 
         [HttpGet("directions/transit")]
@@ -31,21 +33,24 @@ namespace TravelService.Controllers
             }
             if (directionsQueryParameters.StartLat.HasValue && directionsQueryParameters.StartLng.HasValue)
             {
-                return Ok(await directionsService.GetTransitAsync(new Coordinate()
+                var res = await directionsService.GetTransitAsync(new Coordinate()
                 {
                     Lat = directionsQueryParameters.StartLat.Value,
                     Lng = directionsQueryParameters.StartLng.Value
-                }, directionsQueryParameters.EndAddress, directionsQueryParameters.ArrivalTime));
+                }, directionsQueryParameters.EndAddress, directionsQueryParameters.ArrivalTime);
+                Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
+                return Ok(res.TransitDirections);
             }
             return BadRequest();
         }
 
-        private async Task<IActionResult> GetForUser(string endAddress, DateTime arrivalTime, string userId)
+        private async Task<IActionResult> GetForUser(string endAddress, DateTimeOffset arrivalTime, string userId)
         {
             try
             {
                 var directions = await directionsService.GetTransitForUserAsync(userId, endAddress, arrivalTime);
-                return Ok(directions);
+                Response.Headers.Add("ETag", $"\"{directions.CacheKey}\"");
+                return Ok(directions.TransitDirections);
             }
             catch (UserLocationNotFoundException)
             {
@@ -55,16 +60,31 @@ namespace TravelService.Controllers
 
         [HttpGet("{userId}/directions/transit")]
         [Authorize("Service")]
-        public async Task<IActionResult> Get(string endAddress, DateTime arrivalTime, string userId)
+        public async Task<IActionResult> Get(string endAddress, DateTimeOffset arrivalTime, string userId)
         {
             return await GetForUser(endAddress, arrivalTime, userId);
         }
 
         [HttpGet("me/directions/transit")]
         [Authorize("User")]
-        public async Task<IActionResult> Get(string endAddress, DateTime arrivalTime)
+        public async Task<IActionResult> Get(string endAddress, DateTimeOffset arrivalTime)
         {
             return await GetForUser(endAddress, arrivalTime, User.GetId());
+        }
+
+        [HttpGet("directions/{cacheKey}")]
+        public async Task<IActionResult> Get(string cacheKey)
+        {
+            var res = await directionsCache.GetAsync(cacheKey);
+            if (null != res)
+            {
+                Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
+                return Ok(res.TransitDirections);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }

@@ -7,8 +7,8 @@ namespace TravelService.Client
 {
     public interface ITransitApi
     {
-        Task<TransitDirections> Get(string endAddress, DateTime arrivalTime, string userId);
-        Task<TransitDirections> Get(string startAddress, string endAddress, DateTime arrivalTime);
-        Task<TransitDirections> Get(Coordinate startAddress, string endAddress, DateTime arrivalTime);
+        Task<DirectionsResult> Get(string endAddress, DateTimeOffset arrivalTime, string userId);
+        Task<DirectionsResult> Get(string startAddress, string endAddress, DateTimeOffset arrivalTime);
+        Task<DirectionsResult> Get(Coordinate startAddress, string endAddress, DateTimeOffset arrivalTime);
     }
 }
