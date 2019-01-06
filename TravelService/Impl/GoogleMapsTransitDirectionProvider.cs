@@ -45,18 +45,24 @@ namespace TravelService.Impl
             }
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(UserLocation startAddress, ResolvedLocation endAddress, DateTimeOffset arrivalTime)
+        public async Task<TransitDirections> GetDirectionsAsync(DirectionsRequest r)
         {
             var request = new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
             {
-                Destination = FormatDestination(endAddress),
-                Origin = FormatStart(startAddress),
-                ArrivalTime = arrivalTime.UtcDateTime,
+                Destination = FormatDestination(r.EndAddress),
+                Origin = FormatStart(r.StartAddress),
                 TravelMode = GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit,
                 ApiKey = options.GoogleMapsApiKey
             };
+            if (r.ArrivalTime.HasValue)
+            {
+                request.ArrivalTime = r.ArrivalTime.Value.UtcDateTime;
+            }
+            if (r.DepartureTime.HasValue)
+            {
+                request.DepartureTime = r.DepartureTime.Value.UtcDateTime;
+            }
             var res = await GoogleMapsApi.GoogleMaps.Directions.QueryAsync(request);
-
             if (!res.Routes.Any())
             {
                 return null;
@@ -65,7 +71,7 @@ namespace TravelService.Impl
                 .Where(v => v.Legs.Any() && v.Legs.First().Steps.Any(b => b.TravelMode == GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit))
                 .Select(v => v.Legs.First()).Select(v => new Route()
                 {
-                    ArrivalTime = new DateTimeOffset(1970,1,1,0,0,0,TimeSpan.Zero).Add(v.ArrivalTime.Value),
+                    ArrivalTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.ArrivalTime.Value),
                     DepatureTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.DepartureTime.Value),
                     Duration = v.Duration.Value.TotalSeconds,
                     EndAddress = v.EndAddress,

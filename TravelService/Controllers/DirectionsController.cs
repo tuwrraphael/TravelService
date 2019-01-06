@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TravelService.Models;
+using TravelService.Models.Locations;
 using TravelService.Services;
 
 namespace TravelService.Controllers
@@ -27,35 +28,45 @@ namespace TravelService.Controllers
             {
                 return BadRequest();
             }
+            if (directionsQueryParameters.ArrivalTime.HasValue == directionsQueryParameters.DepartureTime.HasValue)
+            {
+                return BadRequest("Either departureTime xor arrialTime must be specified.");
+            }
+            UserLocation start;
             if (null != directionsQueryParameters.StartAddress)
             {
-                return Ok(await directionsService.GetTransitAsync(directionsQueryParameters.StartAddress, directionsQueryParameters.EndAddress, directionsQueryParameters.ArrivalTime));
+                start = new UserLocation(directionsQueryParameters.StartAddress);
+
             }
-            if (directionsQueryParameters.StartLat.HasValue && directionsQueryParameters.StartLng.HasValue)
+            else if (directionsQueryParameters.StartLat.HasValue && directionsQueryParameters.StartLng.HasValue)
             {
-                var res = await directionsService.GetTransitAsync(new Coordinate()
+                start = new UserLocation(new Coordinate()
                 {
                     Lat = directionsQueryParameters.StartLat.Value,
                     Lng = directionsQueryParameters.StartLng.Value
-                }, directionsQueryParameters.EndAddress, directionsQueryParameters.ArrivalTime);
-                Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
-                return Ok(res.TransitDirections);
+                });
             }
-            return BadRequest();
+            else
+            {
+                return BadRequest();
+            }
+            var res = await directionsService.GetTransitAsync(new DirectionsRequest()
+            {
+                StartAddress = start,
+                EndAddress = new ResolvedLocation()
+                {
+                    Address = directionsQueryParameters.EndAddress
+                },
+                DepartureTime = directionsQueryParameters.DepartureTime,
+                ArrivalTime = directionsQueryParameters.ArrivalTime
+            });
+            Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
+            return Ok(res.TransitDirections);
         }
 
         private async Task<IActionResult> GetForUser(string endAddress, DateTimeOffset arrivalTime, string userId)
         {
-            try
-            {
-                var directions = await directionsService.GetTransitForUserAsync(userId, endAddress, arrivalTime);
-                Response.Headers.Add("ETag", $"\"{directions.CacheKey}\"");
-                return Ok(directions.TransitDirections);
-            }
-            catch (UserLocationNotFoundException)
-            {
-                return NotFound();
-            }
+            return NotFound();
         }
 
         [HttpGet("{userId}/directions/transit")]

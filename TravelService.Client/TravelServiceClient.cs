@@ -76,30 +76,36 @@ namespace TravelService.Client
                 throw new TravelServiceException($"Could not get transit directions: {res.StatusCode}");
             }
 
-            public async Task<DirectionsResult> Get(string endAddress, DateTimeOffset arrivalTime, string userId)
-            {
-                var query = HttpUtility.ParseQueryString(string.Empty);
-                query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
-                return await Get($"api/{userId}/directions/transit?{query.ToString()}");
-            }
-
-            public async Task<DirectionsResult> Get(string startAddress, string endAddress, DateTimeOffset arrivalTime)
+            public async Task<DirectionsResult> Get(string startAddress, string endAddress, DateTimeOffset? arrivalTime = null, DateTimeOffset? departureTime = null)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startAddress"] = startAddress;
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
+                if (arrivalTime.HasValue)
+                {
+                    query["arrivalTime"] = arrivalTime.Value.ToString("o");
+                }
+                if (departureTime.HasValue)
+                {
+                    query["departureTime"] = departureTime.Value.ToString("o");
+                }
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
 
-            public async Task<DirectionsResult> Get(Coordinate startAddress, string endAddress, DateTimeOffset arrivalTime)
+            public async Task<DirectionsResult> Get(Coordinate startAddress, string endAddress, DateTimeOffset? arrivalTime = null, DateTimeOffset? departureTime = null)
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["startLat"] = startAddress.Lat.ToString(CultureInfo.InvariantCulture);
                 query["startLng"] = startAddress.Lng.ToString(CultureInfo.InvariantCulture);
                 query["endAddress"] = endAddress;
-                query["arrivalTime"] = arrivalTime.ToString("o");
+                if (arrivalTime.HasValue)
+                {
+                    query["arrivalTime"] = arrivalTime.Value.ToString("o");
+                }
+                if (departureTime.HasValue)
+                {
+                    query["departureTime"] = departureTime.Value.ToString("o");
+                }
                 return await Get($"api/directions/transit?{query.ToString()}");
             }
         }
