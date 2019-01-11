@@ -28,6 +28,11 @@ namespace TravelService.Impl
             await resolvedLocationsStore.PersistAsync(term, userId, resolvedLocation);
         }
 
+        public async Task<ResolvedLocation> ResolveAnonymousAsync(string term, UserLocation userLocation = null)
+        {
+            return (await locationsProvider.Find(term, userLocation))?.FirstOrDefault() ?? new ResolvedLocation() { Address = term };
+        }
+
         public async Task<ResolvedLocation> ResolveAsync(string term, string userId, UserLocation userLocation = null)
         {
             var resolved = await resolvedLocationsStore.GetAsync(term, userId);

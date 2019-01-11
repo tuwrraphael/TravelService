@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TravelService.Models;
-using TravelService.Models.Locations;
 using TravelService.Services;
 
 namespace TravelService.Controllers
@@ -13,12 +12,14 @@ namespace TravelService.Controllers
     {
         private readonly IDirectionService directionsService;
         private readonly IDirectionsCache directionsCache;
+        private readonly ILocationsService locationsService;
 
         public DirectionsController(IDirectionService directionsService,
-            IDirectionsCache directionsCache)
+            IDirectionsCache directionsCache, ILocationsService locationsService)
         {
             this.directionsService = directionsService;
             this.directionsCache = directionsCache;
+            this.locationsService = locationsService;
         }
 
         [HttpGet("directions/transit")]
@@ -53,10 +54,7 @@ namespace TravelService.Controllers
             var res = await directionsService.GetTransitAsync(new DirectionsRequest()
             {
                 StartAddress = start,
-                EndAddress = new ResolvedLocation()
-                {
-                    Address = directionsQueryParameters.EndAddress
-                },
+                EndAddress = await locationsService.ResolveAnonymousAsync(directionsQueryParameters.EndAddress, start),
                 DepartureTime = directionsQueryParameters.DepartureTime,
                 ArrivalTime = directionsQueryParameters.ArrivalTime
             });
