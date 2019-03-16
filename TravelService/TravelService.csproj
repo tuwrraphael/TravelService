@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\App_Data\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CalendarService.Client" Version="1.0.5" />
     <PackageReference Include="DigitService.Client" Version="1.0.4" />
     <PackageReference Include="GoogleMapsApi" Version="0.72.0" />
