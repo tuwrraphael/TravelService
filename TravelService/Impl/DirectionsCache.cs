@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Threading.Tasks;
-using TravelService.Models;
 using TravelService.Models.Directions;
 using TravelService.Services;
 
