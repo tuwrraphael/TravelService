@@ -22,7 +22,7 @@ namespace TravelService
 
         public async Task<UserLocation> GetUserLocationAsync(string userId)
         {
-            var evt = await client.GetCurrentEventAsync(userId);
+            var evt = await client.Users[userId].Events.GetCurrentAsync();
             if (null != evt)
             {
                 if (evt.Location.Coordinate != null)
