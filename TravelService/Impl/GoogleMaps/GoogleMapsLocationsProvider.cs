@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +6,7 @@ using TravelService.Models;
 using TravelService.Models.Locations;
 using TravelService.Services;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.GoogleMaps
 {
     public class GoogleMapsLocationsProvider : ILocationsProvider
     {

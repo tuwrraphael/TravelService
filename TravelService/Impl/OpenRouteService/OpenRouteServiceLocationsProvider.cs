@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TravelService.Impl.OpenRouteService.Client;
 using TravelService.Models;
 using TravelService.Models.Locations;
 using TravelService.Services;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.OpenRouteService
 {
     public class OpenRouteServiceLocationsProvider : ILocationsProvider
     {

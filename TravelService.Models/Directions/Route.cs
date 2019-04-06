@@ -4,8 +4,8 @@ namespace TravelService.Models.Directions
 {
     public class Route
     {
-        public DateTimeOffset? DepatureTime { get; set; }
-        public DateTimeOffset? ArrivalTime { get; set; }
+        public DateTimeOffset DepatureTime { get; set; }
+        public DateTimeOffset ArrivalTime { get; set; }
         /// <summary>
         /// duration in seconds
         /// </summary>

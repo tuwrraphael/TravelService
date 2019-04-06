@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.OpenRouteService.Client
 {
     [Serializable]
     internal class OpenRouteServiceException : Exception

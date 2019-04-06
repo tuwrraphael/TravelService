@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Services;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.GoogleMaps
 {
     public class GoogleMapsGeocodeProvider : IGeocodeProvider
     {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -8,7 +8,7 @@ using TravelService.Models.Directions;
 using TravelService.Models.Locations;
 using TravelService.Services;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.GoogleMaps
 {
     public class GoogleMapsTransitDirectionProvider : ITransitDirectionProvider
     {

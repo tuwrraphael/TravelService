@@ -1,4 +1,4 @@
-﻿namespace TravelService.Impl
+namespace TravelService.Impl.OpenRouteService.Client
 {
     public class Geocoding
     {

@@ -1,12 +1,14 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using TravelService.Impl.WienerLinien.RoutingClient;
 using TravelService.Models;
 using TravelService.Models.Directions;
 using TravelService.Services;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.WienerLinien
 {
     public class WienerLinienTransitDirectionsProvider : ITransitDirectionProvider
     {
@@ -76,10 +78,19 @@ namespace TravelService.Impl
                             };
                         }).ToArray(),
                     };
-                }).ToArray();
+                });
+            IEnumerable<Route> ordered;
+            if (request.DepartureTime != null)
+            {
+                ordered = routes.OrderBy(r => Math.Abs((r.DepatureTime - request.DepartureTime.Value).TotalSeconds));
+            }
+            else
+            {
+                ordered = routes.OrderBy(r => Math.Abs((r.ArrivalTime - request.ArrivalTime.Value).TotalSeconds));
+            }
             return new TransitDirections()
             {
-                Routes = routes
+                Routes = ordered.ToArray()
             };
         }
     }

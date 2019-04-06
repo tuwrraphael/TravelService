@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using TravelService.Models;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.OpenRouteService.Client
 {
     public interface IOpenRouteServiceClient
     {

@@ -14,6 +14,11 @@ using TravelService.Services;
 using Microsoft.AspNetCore.Mvc;
 using TravelService.Impl.EF;
 using Microsoft.EntityFrameworkCore;
+using TravelService.Impl.WienerLinien;
+using TravelService.Impl.WienerLinien.RoutingClient;
+using TravelService.Impl.OpenRouteService.Client;
+using TravelService.Impl.GoogleMaps;
+using TravelService.Impl.OpenRouteService;
 
 namespace TravelService
 {

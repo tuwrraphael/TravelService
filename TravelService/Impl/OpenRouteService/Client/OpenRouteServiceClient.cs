@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net.Http;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using TravelService.Models;
 
-namespace TravelService.Impl
+namespace TravelService.Impl.OpenRouteService.Client
 {
     public class OpenRouteServiceClient : IOpenRouteServiceClient
     {

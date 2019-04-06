@@ -1,4 +1,4 @@
-﻿namespace TravelService.Impl
+namespace TravelService.Impl.WienerLinien.RoutingClient
 {
     public class Interchange
     {
