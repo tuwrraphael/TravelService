@@ -10,16 +10,15 @@ namespace TravelService.Impl
 {
     public class GoogleMapsLocationsProvider : ILocationsProvider
     {
-        private readonly GoogleMapsApiOptions options;
+        private readonly ApiOptions options;
 
-        public GoogleMapsLocationsProvider(IOptions<GoogleMapsApiOptions> optionsAccessor)
+        public GoogleMapsLocationsProvider(IOptions<ApiOptions> optionsAccessor)
         {
             options = optionsAccessor.Value;
         }
 
         public async Task<ResolvedLocation[]> Find(string term, UserLocation userLocation)
         {
-            return null;
             var request = new GoogleMapsApi.Entities.PlacesText.Request.PlacesTextRequest()
             {
                 Query = term,

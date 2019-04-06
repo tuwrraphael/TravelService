@@ -44,12 +44,12 @@ namespace TravelService
             services.AddTransient<ITransitDirectionProvider, WienerLinienTransitDirectionsProvider>();
             services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
-            services.AddTransient<ILocationsProvider, GoogleMapsLocationsProvider>();
+            services.AddTransient<ILocationsProvider, OpenRouteServiceLocationsProvider>();
             services.AddTransient<ILocationsService, LocationsService>();
             services.AddTransient<IResolvedLocationsStore, ResolvedLocationsStore>();
             services.AddTransient<IDirectionsCache, DirectionsCache>();
 
-            services.Configure<GoogleMapsApiOptions>(Configuration);
+            services.Configure<ApiOptions>(Configuration);
 
             var authProviderBuilder = services.AddBearerTokenAuthenticationProvider("travelService")
                 .UseMemoryCacheTokenStore()
@@ -104,6 +104,8 @@ namespace TravelService
             });
             services.AddHttpClient<IWienerLinienRoutingClient, WienerLinienRoutingClient>("WienerlinienClient",
                 c => { c.BaseAddress = new Uri("https://www.wienerlinien.at"); });
+            services.AddHttpClient<IOpenRouteServiceClient, OpenRouteServiceClient>("OpenRouteServiceClient",
+                c => { c.BaseAddress = new Uri("https://api.openrouteservice.org/"); });
             services.AddMemoryCache();
         }
 

@@ -12,9 +12,9 @@ namespace TravelService.Impl
 {
     public class GoogleMapsTransitDirectionProvider : ITransitDirectionProvider
     {
-        private readonly GoogleMapsApiOptions options;
+        private readonly ApiOptions options;
 
-        public GoogleMapsTransitDirectionProvider(IOptions<GoogleMapsApiOptions> optionsAccessor)
+        public GoogleMapsTransitDirectionProvider(IOptions<ApiOptions> optionsAccessor)
         {
             options = optionsAccessor.Value;
         }
