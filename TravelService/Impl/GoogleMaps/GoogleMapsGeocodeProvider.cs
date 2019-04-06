@@ -8,9 +8,9 @@ namespace TravelService.Impl
 {
     public class GoogleMapsGeocodeProvider : IGeocodeProvider
     {
-        private readonly GoogleMapsApiOptions options;
+        private readonly ApiOptions options;
 
-        public GoogleMapsGeocodeProvider(IOptions<GoogleMapsApiOptions> optionsAccessor)
+        public GoogleMapsGeocodeProvider(IOptions<ApiOptions> optionsAccessor)
         {
             options = optionsAccessor.Value;
         }
