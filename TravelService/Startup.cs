@@ -41,7 +41,7 @@ namespace TravelService
                 options.UseSqlite($"Data Source={HostingEnvironment.WebRootPath}\\App_Data\\travelService.db")
             );
             services.AddTransient<IDirectionService, DirectionService>();
-            services.AddTransient<ITransitDirectionProvider, GoogleMapsTransitDirectionProvider>();
+            services.AddTransient<ITransitDirectionProvider, WienerLinienTransitDirectionsProvider>();
             services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
             services.AddTransient<ILocationsProvider, GoogleMapsLocationsProvider>();
@@ -102,7 +102,8 @@ namespace TravelService
                     builder.RequireClaim("scope", "travel.service");
                 });
             });
-
+            services.AddHttpClient<IWienerLinienRoutingClient, WienerLinienRoutingClient>("WienerlinienClient",
+                c => { c.BaseAddress = new Uri("https://www.wienerlinien.at"); });
             services.AddMemoryCache();
         }
 

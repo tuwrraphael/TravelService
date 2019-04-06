@@ -19,6 +19,7 @@ namespace TravelService.Impl
 
         public async Task<ResolvedLocation[]> Find(string term, UserLocation userLocation)
         {
+            return null;
             var request = new GoogleMapsApi.Entities.PlacesText.Request.PlacesTextRequest()
             {
                 Query = term,
