@@ -16,6 +16,48 @@ namespace TravelService.Impl.WienerLinien.RoutingClient
         {
             _client = client;
         }
+
+        public async Task<WLRoutingResponse> RequestTripAsync(string fromStationId, string toStationId,
+            DirectionsRequest directionsRequest)
+        {
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["language"] = "de";
+            query["outputFormat"] = "json";
+
+            query["type_origin"] = "stop";
+            query["name_origin"] = fromStationId;
+
+            query["type_destination"] = "stop";
+            query["name_destination"] = toStationId;
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+
+            if (directionsRequest.DepartureTime.HasValue)
+            {
+                var viennaTime = directionsRequest.DepartureTime.Value.ToOffset(timeZoneInfo.GetUtcOffset(directionsRequest.DepartureTime.Value));
+                query["itdTripDateTimeDepArr"] = "dep";
+                query["itdDate"] = viennaTime.DateTime.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+                query["itdTime"] = viennaTime.DateTime.ToString("HHmm");
+            }
+            else if (directionsRequest.ArrivalTime.HasValue)
+            {
+                var viennaTime = directionsRequest.ArrivalTime.Value.ToOffset(timeZoneInfo.GetUtcOffset(directionsRequest.ArrivalTime.Value));
+                query["itdTripDateTimeDepArr"] = "arr";
+                query["itdDate"] = viennaTime.DateTime.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+                query["itdTime"] = viennaTime.DateTime.ToString("HHmm");
+            }
+            var res = await _client.GetAsync($"ogd_routing/XML_TRIP_REQUEST2?{query.ToString()}");
+            if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            if (!res.IsSuccessStatusCode)
+            {
+                throw new Exception($"Request to WienerLinien returned : {res.StatusCode}");
+            }
+            var content = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<WLRoutingResponse>(content);
+        }
+
         public async Task<WLRoutingResponse> RequestTripAsync(DirectionsRequest directionsRequest)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);

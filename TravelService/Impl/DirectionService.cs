@@ -29,6 +29,7 @@ namespace TravelService.Impl
 
         public async Task<DirectionsResult> GetTransitAsync(DirectionsRequest request)
         {
+            //if (request.)
             var directionTasks = transitDirectionProviders.Select(v => v.GetDirectionsAsync(request));
             return await directionsCache.PutAsync(new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() });
         }

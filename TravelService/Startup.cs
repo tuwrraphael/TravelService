@@ -46,7 +46,7 @@ namespace TravelService
                 options.UseSqlite($"Data Source={HostingEnvironment.WebRootPath}\\App_Data\\travelService.db")
             );
             services.AddTransient<IDirectionService, DirectionService>();
-            services.AddTransient<ITransitDirectionProvider, WienerLinienTransitDirectionsProvider>();
+            services.AddTransient<ITransitDirectionProvider, CombinedTransitDirectionsProvider>();
             services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
             services.AddTransient<ILocationsProvider, OpenRouteServiceLocationsProvider>();
@@ -54,7 +54,11 @@ namespace TravelService
             services.AddTransient<IResolvedLocationsStore, ResolvedLocationsStore>();
             services.AddTransient<IDirectionsCache, DirectionsCache>();
 
-            services.Configure<ApiOptions>(Configuration);
+            services.Configure<ApiOptions>(a => {
+                a.GoogleMapsApiKey = Configuration[nameof(ApiOptions.GoogleMapsApiKey)];
+                a.OpenRouteApiKey = Configuration[nameof(ApiOptions.OpenRouteApiKey)];
+                a.Tile38WLApiUrl = new Uri(Configuration[nameof(ApiOptions.Tile38WLApiUrl)]);
+            });
 
             var authProviderBuilder = services.AddBearerTokenAuthenticationProvider("travelService")
                 .UseMemoryCacheTokenStore()
@@ -111,6 +115,8 @@ namespace TravelService
                 c => { c.BaseAddress = new Uri("https://www.wienerlinien.at"); });
             services.AddHttpClient<IOpenRouteServiceClient, OpenRouteServiceClient>("OpenRouteServiceClient",
                 c => { c.BaseAddress = new Uri("https://api.openrouteservice.org/"); });
+            services.AddHttpClient<ITile38WLApiClient, Tile38WLApiClient>("Tile38WLApiClient",
+                c => { c.BaseAddress = new Uri(Configuration[nameof(ApiOptions.Tile38WLApiUrl)]); });
             services.AddMemoryCache();
         }
 
