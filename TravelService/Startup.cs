@@ -19,6 +19,7 @@ using TravelService.Impl.WienerLinien.RoutingClient;
 using TravelService.Impl.OpenRouteService.Client;
 using TravelService.Impl.GoogleMaps;
 using TravelService.Impl.OpenRouteService;
+using TravelService.Impl.OpenTripPlanner;
 
 namespace TravelService
 {
@@ -46,7 +47,7 @@ namespace TravelService
                 options.UseSqlite($"Data Source={HostingEnvironment.WebRootPath}\\App_Data\\travelService.db")
             );
             services.AddTransient<IDirectionService, DirectionService>();
-            services.AddTransient<ITransitDirectionProvider, WienerLinienTransitDirectionsProvider>();
+            services.AddTransient<ITransitDirectionProvider, OpenTripPlannerProvider>();
             services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
             services.AddTransient<ILocationsProvider, OpenRouteServiceLocationsProvider>();
@@ -111,6 +112,8 @@ namespace TravelService
                 c => { c.BaseAddress = new Uri("https://www.wienerlinien.at"); });
             services.AddHttpClient<IOpenRouteServiceClient, OpenRouteServiceClient>("OpenRouteServiceClient",
                 c => { c.BaseAddress = new Uri("https://api.openrouteservice.org/"); });
+            services.AddHttpClient<IOpenTripPlannerClient, OpenTripPlannerClient>("OpenTripPlannerClient",
+                c => { c.BaseAddress = new Uri(Configuration["OpenTripPlannerUrl"]); });
             services.AddMemoryCache();
         }
 
