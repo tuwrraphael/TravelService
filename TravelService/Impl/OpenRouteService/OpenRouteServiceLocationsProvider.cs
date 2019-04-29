@@ -16,22 +16,17 @@ namespace TravelService.Impl.OpenRouteService
         {
             _openRouteServiceClient = openRouteServiceClient;
         }
-        public async Task<ResolvedLocation[]> Find(string term, UserLocation userLocation)
+        public async Task<ResolvedLocation[]> Find(string term, ResolvedLocation userLocation)
         {
             var res = await _openRouteServiceClient.Geocode(term, userLocation?.Coordinate);
             if (!res.features.Any())
             {
                 return null;
             }
-            return res.features.Select(f => new ResolvedLocation()
+            return res.features.Select(f => new ResolvedLocation(new Coordinate(f.geometry.coordinates[1], f.geometry.coordinates[0]))
             {
                 Address = f.properties.label,
-                Attributes = new Dictionary<string, string>(),
-                Coordinate = new Coordinate()
-                {
-                    Lat = f.geometry.coordinates[1],
-                    Lng = f.geometry.coordinates[0]
-                }
+                Attributes = new Dictionary<string, string>()
             }).ToArray();
         }
     }

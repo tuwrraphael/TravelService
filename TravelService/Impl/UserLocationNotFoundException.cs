@@ -1,24 +1,14 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using TravelService.Models;
 
 namespace TravelService
 {
     [Serializable]
-    internal class UserLocationNotFoundException : Exception
+    internal class LocationNotFoundException : Exception
     {
-        public UserLocationNotFoundException()
-        {
-        }
-
-        public UserLocationNotFoundException(string message) : base(message)
-        {
-        }
-
-        public UserLocationNotFoundException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected UserLocationNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
+        public LocationNotFoundException(UnresolvedLocation unresolvedLocation):
+            base($"Cannot resolve {unresolvedLocation.Address}/{unresolvedLocation.Coordinate}")
         {
         }
     }

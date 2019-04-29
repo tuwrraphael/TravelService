@@ -19,21 +19,13 @@ namespace TravelService.Impl.GoogleMaps
             options = optionsAccessor.Value;
         }
 
-        private string FormatDestination(ResolvedLocation resolvedLocation)
+        private string FormatCoordinate(Coordinate coordinate)
         {
-            if (null != resolvedLocation.Coordinate)
-            {
-                return $"{resolvedLocation.Coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{resolvedLocation.Coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
-            }
-            if (null != resolvedLocation.Attributes &&
-                resolvedLocation.Attributes.ContainsKey("GoogleMapsPlaceId"))
-            {
-                return $"place_id:{resolvedLocation.Attributes["GoogleMapsPlaceId"]}";
-            }
-            return resolvedLocation.Address;
+            return $"{coordinate.Lat.ToString(CultureInfo.InvariantCulture)},{coordinate.Lng.ToString(CultureInfo.InvariantCulture)}";
+
         }
 
-        private string FormatStart(UserLocation startAddress)
+        private string FormatStart(UnresolvedLocation startAddress)
         {
             if (null != startAddress.Coordinate)
             {
@@ -45,22 +37,22 @@ namespace TravelService.Impl.GoogleMaps
             }
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(DirectionsRequest r)
+        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest r)
         {
             var request = new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
             {
-                Destination = FormatDestination(r.EndAddress),
-                Origin = FormatStart(r.StartAddress),
+                Destination = FormatCoordinate(r.To),
+                Origin = FormatCoordinate(r.From),
                 TravelMode = GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit,
                 ApiKey = options.GoogleMapsApiKey
             };
-            if (r.ArrivalTime.HasValue)
+            if (r.ArriveBy)
             {
-                request.ArrivalTime = r.ArrivalTime.Value.UtcDateTime;
+                request.ArrivalTime = r.DateTime.UtcDateTime;
             }
-            if (r.DepartureTime.HasValue)
+            else
             {
-                request.DepartureTime = r.DepartureTime.Value.UtcDateTime;
+                request.DepartureTime = r.DateTime.UtcDateTime;
             }
             var res = await GoogleMapsApi.GoogleMaps.Directions.QueryAsync(request);
             if (!res.Routes.Any())

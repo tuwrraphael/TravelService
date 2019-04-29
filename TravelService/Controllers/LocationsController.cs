@@ -17,9 +17,9 @@ namespace TravelService.Controllers
             this.locationsService = locationsService;
         }
 
-        private async Task<IActionResult> ResolveLocations(string term, string userId, UserLocation userLocation)
+        private async Task<IActionResult> ResolveLocations(string term, string userId, ResolvedLocation userLocation)
         {
-            var location = await locationsService.ResolveAsync(term, userId, userLocation);
+            var location = await locationsService.ResolveAsync(userId, new UnresolvedLocation(term), userLocation);
             return Ok(location);
         }
 
@@ -27,7 +27,7 @@ namespace TravelService.Controllers
         [Authorize("User")]
         public async Task<IActionResult> Get(string term, [FromQuery]double? lat, [FromQuery]double? lng)
         {
-            return await ResolveLocations(term, User.GetId(), lat.HasValue && lng.HasValue ? new UserLocation(new Coordinate()
+            return await ResolveLocations(term, User.GetId(), lat.HasValue && lng.HasValue ? new ResolvedLocation(new Coordinate()
             {
                 Lat = lat.Value,
                 Lng = lng.Value
@@ -36,9 +36,14 @@ namespace TravelService.Controllers
 
         [HttpPut("me/locations/{term}")]
         [Authorize("User")]
-        public async Task<IActionResult> Put(string term, [FromBody] ResolvedLocation resolvedLocation)
+        public async Task<IActionResult> Put(string term, [FromBody] AddResolvedLocationRequest resolvedLocation)
         {
-            await locationsService.PersistAsync(term, User.GetId(), resolvedLocation);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            await locationsService.PersistAsync(User.GetId(), term,
+                new ResolvedLocation(new Coordinate(resolvedLocation.Lat, resolvedLocation.Lng)));
             return Ok();
         }
 
@@ -46,7 +51,7 @@ namespace TravelService.Controllers
         [Authorize("User")]
         public async Task<IActionResult> Delete(string term)
         {
-            await locationsService.DeleteAsync(term, User.GetId());
+            await locationsService.DeleteAsync(User.GetId(), term);
             return Ok();
         }
     }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using OAuthApiClient.Abstractions;
 using System;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -22,7 +23,36 @@ namespace TravelService.Client
             options = optionsAccessor.Value;
         }
 
-        public IDirectionsApi Directions => new DirectionsApi(GetClientAsync);
+        public IDirectionsApi Directions => new DirectionsApi(GetClientAsync, null);
+
+        public IUsers Users => new UsersApi(GetClientAsync);
+
+        private class UsersApi : IUsers
+        {
+            private readonly Func<Task<HttpClient>> _clientFactory;
+
+            public UsersApi(Func<Task<HttpClient>> clientFactory)
+            {
+                _clientFactory = clientFactory;
+            }
+
+            public IUserApi this[string userId] => new UserApi(_clientFactory, userId);
+
+            public IUserApi Me => new UserApi(_clientFactory, "me");
+        }
+
+        private class UserApi : IUserApi
+        {
+            private readonly Func<Task<HttpClient>> _clientFactory;
+            private readonly string _userId;
+
+            public UserApi(Func<Task<HttpClient>> clientFactory, string userId)
+            {
+                _clientFactory = clientFactory;
+                _userId = userId;
+            }
+            public IUserDirectionApi Directions => new DirectionsApi(_clientFactory, _userId);
+        }
 
         private async Task<HttpClient> GetClientAsync()
         {
@@ -34,18 +64,20 @@ namespace TravelService.Client
             return client;
         }
 
-        private class DirectionsApi : IDirectionsApi
+        private class DirectionsApi : IDirectionsApi, IUserDirectionApi
         {
             private readonly Func<Task<HttpClient>> clientFactory;
+            private readonly string _userId;
 
-            public DirectionsApi(Func<Task<HttpClient>> clientFactory)
+            public DirectionsApi(Func<Task<HttpClient>> clientFactory, string userId)
             {
                 this.clientFactory = clientFactory;
+                _userId = userId;
             }
 
             public IDirectionApi this[string cacheKey] => new DirectionApi(clientFactory, cacheKey);
 
-            public ITransitApi Transit => new TransitApi(clientFactory);
+            public ITransitApi Transit => new TransitApi(clientFactory, _userId);
         }
 
         private class DirectionApi : IDirectionApi
@@ -83,15 +115,18 @@ namespace TravelService.Client
         private class TransitApi : ITransitApi
         {
             private readonly Func<Task<HttpClient>> clientFactory;
+            private readonly string _userId;
 
-            public TransitApi(Func<Task<HttpClient>> clientFactory)
+            public TransitApi(Func<Task<HttpClient>> clientFactory, string userId)
             {
                 this.clientFactory = clientFactory;
+                _userId = userId;
             }
 
-            private async Task<DirectionsResult> Get(string url)
+            private async Task<DirectionsResult> Get(NameValueCollection queryParams)
             {
-                var res = await (await clientFactory()).GetAsync(url);
+                var baseUrl = _userId != null ? $"api/{_userId}/directions/transit" : "api/directions/transit";
+                var res = await (await clientFactory()).GetAsync($"{baseUrl}?{queryParams.ToString()}");
                 if (res.IsSuccessStatusCode)
                 {
                     var content = await res.Content.ReadAsStringAsync();
@@ -123,7 +158,7 @@ namespace TravelService.Client
                 {
                     query["departureTime"] = departureTime.Value.ToString("o");
                 }
-                return await Get($"api/directions/transit?{query.ToString()}");
+                return await Get(query);
             }
 
             public async Task<DirectionsResult> Get(Coordinate startAddress, string endAddress, DateTimeOffset? arrivalTime = null, DateTimeOffset? departureTime = null)
@@ -140,7 +175,7 @@ namespace TravelService.Client
                 {
                     query["departureTime"] = departureTime.Value.ToString("o");
                 }
-                return await Get($"api/directions/transit?{query.ToString()}");
+                return await Get(query);
             }
         }
     }

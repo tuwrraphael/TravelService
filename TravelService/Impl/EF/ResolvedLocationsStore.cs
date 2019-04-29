@@ -28,15 +28,10 @@ namespace TravelService.Impl.EF
         public async Task<ResolvedLocation> GetAsync(string term, string userId)
         {
             return await travelServiceContext.PersistedLocations.Where(v => v.Term == term && v.UserId == userId)
-                .Select(v => new ResolvedLocation()
+                .Select(v => new ResolvedLocation(new Models.Coordinate(v.Lat, v.Lng))
                 {
                     Address = v.Address,
                     Attributes = v.Attributes,
-                    Coordinate = v.Lat.HasValue && v.Lng.HasValue ? new Models.Coordinate()
-                    {
-                        Lat = v.Lat.Value,
-                        Lng = v.Lng.Value
-                    } : null
                 })
                 .SingleOrDefaultAsync();
         }
@@ -54,15 +49,8 @@ namespace TravelService.Impl.EF
                 };
                 travelServiceContext.Add(persisted);
             }
-            if (null != resolvedLocation.Coordinate)
-            {
-                persisted.Lat = resolvedLocation.Coordinate.Lat;
-                persisted.Lng = resolvedLocation.Coordinate.Lng;
-            }
-            else
-            {
-                persisted.Lat = persisted.Lng = null;
-            }
+            persisted.Lat = resolvedLocation.Coordinate.Lat;
+            persisted.Lng = resolvedLocation.Coordinate.Lng;
             persisted.Address = resolvedLocation.Address;
             persisted.Attributes = resolvedLocation.Attributes;
             await travelServiceContext.SaveChangesAsync();

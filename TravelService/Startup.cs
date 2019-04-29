@@ -14,7 +14,6 @@ using TravelService.Services;
 using Microsoft.AspNetCore.Mvc;
 using TravelService.Impl.EF;
 using Microsoft.EntityFrameworkCore;
-using TravelService.Impl.WienerLinien;
 using TravelService.Impl.WienerLinien.RoutingClient;
 using TravelService.Impl.OpenRouteService.Client;
 using TravelService.Impl.GoogleMaps;
@@ -48,7 +47,6 @@ namespace TravelService
             );
             services.AddTransient<IDirectionService, DirectionService>();
             services.AddTransient<ITransitDirectionProvider, OpenTripPlannerProvider>();
-            services.AddTransient<ILocationProvider, LocationProvider>();
             services.AddTransient<IGeocodeProvider, GoogleMapsGeocodeProvider>();
             services.AddTransient<ILocationsProvider, OpenRouteServiceLocationsProvider>();
             services.AddTransient<ILocationsService, LocationsService>();
@@ -120,6 +118,14 @@ namespace TravelService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<TravelServiceContext>())
+                {
+                    context.Database.EnsureCreated();
+                    context.Database.Migrate();
+                }
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

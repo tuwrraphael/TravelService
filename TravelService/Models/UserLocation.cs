@@ -1,12 +1,13 @@
 ﻿namespace TravelService.Models
 {
-    public class UserLocation
+    public class UnresolvedLocation
     {
-        public UserLocation(Coordinate coordinate)
+        public const string Home = "#home";
+        public UnresolvedLocation(Coordinate coordinate)
         {
             Coordinate = coordinate;
         }
-        public UserLocation(string address)
+        public UnresolvedLocation(string address)
         {
             Address = address;
         }

@@ -5,6 +5,6 @@ namespace TravelService.Impl.WienerLinien.RoutingClient
 {
     public interface IWienerLinienRoutingClient
     {
-        Task<WLRoutingResponse> RequestTripAsync(DirectionsRequest directionsRequest);
+        Task<WLRoutingResponse> RequestTripAsync(TransitDirectionsRequest directionsRequest);
     }
 }

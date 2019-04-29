@@ -26,7 +26,7 @@ namespace TravelService.Impl.WienerLinien
             return new DateTimeOffset(dt, tz.GetUtcOffset(dt));
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(DirectionsRequest request)
+        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest request)
         {
             var directions = await _wienerLinienRoutingClient.RequestTripAsync(request);
             if (null == directions || directions.trips == null || !directions.trips.Any())
@@ -80,13 +80,13 @@ namespace TravelService.Impl.WienerLinien
                     };
                 });
             IEnumerable<Route> ordered;
-            if (request.DepartureTime != null)
+            if (request.ArriveBy == false)
             {
-                ordered = routes.OrderBy(r => Math.Abs((r.DepatureTime - request.DepartureTime.Value).TotalSeconds));
+                ordered = routes.OrderBy(r => Math.Abs((r.DepatureTime - request.DateTime).TotalSeconds));
             }
             else
             {
-                ordered = routes.OrderBy(r => Math.Abs((r.ArrivalTime - request.ArrivalTime.Value).TotalSeconds));
+                ordered = routes.OrderBy(r => Math.Abs((r.ArrivalTime - request.DateTime).TotalSeconds));
             }
             return new TransitDirections()
             {

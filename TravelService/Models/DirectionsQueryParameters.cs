@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelService.Models
 {
@@ -12,5 +13,13 @@ namespace TravelService.Models
         public string EndAddress { get; set; }
         public DateTimeOffset? ArrivalTime { get; set; }
         public DateTimeOffset? DepartureTime { get; set; }
+    }
+
+    public class AddResolvedLocationRequest
+    {
+        [Required]
+        public double Lat { get; set; }
+        [Required]
+        public double Lng { get; set; }
     }
 }

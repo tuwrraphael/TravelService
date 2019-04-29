@@ -18,29 +18,45 @@ namespace TravelService.Impl
             this.locationsProvider = locationsProvider;
         }
 
-        public async Task DeleteAsync(string term, string userId)
+        public async Task DeleteAsync(string userId, string term)
         {
             await resolvedLocationsStore.DeleteAsync(term, userId);
         }
 
-        public async Task PersistAsync(string term, string userId, ResolvedLocation resolvedLocation)
+        public async Task PersistAsync(string userId, string term, ResolvedLocation resolvedLocation)
         {
             await resolvedLocationsStore.PersistAsync(term, userId, resolvedLocation);
         }
 
-        public async Task<ResolvedLocation> ResolveAnonymousAsync(string term, UserLocation userLocation = null)
+        public async Task<ResolvedLocation> ResolveAnonymousAsync(UnresolvedLocation toResolve, ResolvedLocation userLocation = null)
         {
-            return (await locationsProvider.Find(term, userLocation))?.FirstOrDefault() ?? new ResolvedLocation() { Address = term };
+            if (null != toResolve.Coordinate)
+            {
+                return new ResolvedLocation(toResolve.Coordinate);
+            }
+            if (null == toResolve.Address)
+            {
+                return null;
+            }
+            return (await locationsProvider.Find(toResolve.Address, userLocation))?.FirstOrDefault();
         }
 
-        public async Task<ResolvedLocation> ResolveAsync(string term, string userId, UserLocation userLocation = null)
+        public async Task<ResolvedLocation> ResolveAsync(string userId, UnresolvedLocation toResolve, ResolvedLocation userLocation = null)
         {
-            var resolved = await resolvedLocationsStore.GetAsync(term, userId);
+            if (null == toResolve.Address)
+            {
+                return null;
+            }
+            if (null != toResolve.Coordinate)
+            {
+                return new ResolvedLocation(toResolve.Coordinate);
+            }
+            var resolved = await resolvedLocationsStore.GetAsync(toResolve.Address, userId);
             if (null != resolved)
             {
                 return resolved;
             }
-            return (await locationsProvider.Find(term, userLocation))?.FirstOrDefault();
+            return (await locationsProvider.Find(toResolve.Address, userLocation))?.FirstOrDefault();
         }
     }
 }

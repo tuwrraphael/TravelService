@@ -102,18 +102,14 @@ namespace TravelService.Impl.OpenTripPlanner
             _openTripPlannerClient = openTripPlannerClient;
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(DirectionsRequest request)
+        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest request)
         {
-            if (null == request.StartAddress.Coordinate || null == request.EndAddress.Coordinate)
-            {
-                throw new OpenTripPlannerException("For now only coordinates are supported");
-            }
             var res = await _openTripPlannerClient.Plan(new OpenTripPlannerRequest()
             {
-                FromPlace = request.StartAddress.Coordinate,
-                ToPlace = request.EndAddress.Coordinate,
-                ArriveBy = request.ArrivalTime != null ? true : false,
-                DateTime = request.ArrivalTime.HasValue ? request.ArrivalTime.Value : request.DepartureTime.Value
+                FromPlace = request.From,
+                ToPlace = request.To,
+                ArriveBy = request.ArriveBy,
+                DateTime = request.DateTime
             });
             if (null == res.Plan)
             {

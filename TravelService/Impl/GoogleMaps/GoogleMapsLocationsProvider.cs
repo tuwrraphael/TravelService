@@ -17,7 +17,7 @@ namespace TravelService.Impl.GoogleMaps
             options = optionsAccessor.Value;
         }
 
-        public async Task<ResolvedLocation[]> Find(string term, UserLocation userLocation)
+        public async Task<ResolvedLocation[]> Find(string term, ResolvedLocation userLocation)
         {
             var request = new GoogleMapsApi.Entities.PlacesText.Request.PlacesTextRequest()
             {
@@ -30,20 +30,16 @@ namespace TravelService.Impl.GoogleMaps
                     userLocation.Coordinate.Lng);
             }
             var res = await GoogleMapsApi.GoogleMaps.PlacesText.QueryAsync(request);
-            if (!res.Results.Any())
+            var resWithCooards = res.Results.Where(r => r.Geometry?.Location != null);
+            if (!resWithCooards.Any())
             {
                 return null;
             }
-            return res.Results.Select(v => new ResolvedLocation()
+            return resWithCooards.Select(v => new ResolvedLocation(new Coordinate(v.Geometry.Location.Latitude,
+                v.Geometry.Location.Longitude))
             {
                 Attributes = new Dictionary<string, string> {
                     {"GoogleMapsPlaceId", v.PlaceId } },
-                Coordinate = v.Geometry?.Location != null ?
-                    new Coordinate()
-                    {
-                        Lat = v.Geometry.Location.Latitude,
-                        Lng = v.Geometry.Location.Longitude
-                    } : null,
                 Address = v.FormattedAddress
             }).ToArray();
         }

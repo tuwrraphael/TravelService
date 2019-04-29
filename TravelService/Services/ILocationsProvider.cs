@@ -6,6 +6,6 @@ namespace TravelService.Services
 {
     public interface ILocationsProvider
     {
-        Task<ResolvedLocation[]> Find(string term, UserLocation userLocation);
+        Task<ResolvedLocation[]> Find(string term, ResolvedLocation userLocation);
     }
 }
