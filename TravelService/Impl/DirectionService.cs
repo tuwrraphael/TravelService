@@ -48,11 +48,11 @@ namespace TravelService.Impl
                     resolvedEnd = await locationsService.ResolveAnonymousAsync(request.EndAddress, resolvedStart);
                 }
             }
-            if (null != resolvedStart)
+            if (null == resolvedStart)
             {
                 throw new LocationNotFoundException(request.StartAddress);
             }
-            if (null != resolvedEnd)
+            if (null == resolvedEnd)
             {
                 throw new LocationNotFoundException(request.EndAddress);
             }
