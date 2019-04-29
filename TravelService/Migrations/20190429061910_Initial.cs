@@ -14,8 +14,8 @@ namespace TravelService.Migrations
                     Attributes = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
                     Term = table.Column<string>(nullable: true),
-                    Lat = table.Column<double>(nullable: true),
-                    Lng = table.Column<double>(nullable: true),
+                    Lat = table.Column<double>(nullable: false),
+                    Lng = table.Column<double>(nullable: false),
                     Address = table.Column<string>(nullable: true)
                 },
                 constraints: table =>

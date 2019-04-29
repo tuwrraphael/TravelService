@@ -122,7 +122,6 @@ namespace TravelService
             {
                 using (var context = serviceScope.ServiceProvider.GetService<TravelServiceContext>())
                 {
-                    context.Database.EnsureCreated();
                     context.Database.Migrate();
                 }
             }
