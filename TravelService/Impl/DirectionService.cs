@@ -12,20 +12,15 @@ namespace TravelService.Impl
     {
         private static readonly ResolvedLocation Vienna = new ResolvedLocation(new Coordinate(48.210033, 16.363449));
 
-        private readonly ILocationProvider locationProvider;
         private readonly IEnumerable<ITransitDirectionProvider> transitDirectionProviders;
-        private readonly IGeocodeProvider geocodeProvider;
         private readonly ILocationsService locationsService;
         private readonly IDirectionsCache directionsCache;
 
-        public DirectionService(ILocationProvider locationProvider, IEnumerable<ITransitDirectionProvider> transitDirectionProviders,
-            IGeocodeProvider geocodeProvider,
+        public DirectionService(IEnumerable<ITransitDirectionProvider> transitDirectionProviders,
             ILocationsService locationsService,
             IDirectionsCache directionsCache)
         {
-            this.locationProvider = locationProvider;
             this.transitDirectionProviders = transitDirectionProviders;
-            this.geocodeProvider = geocodeProvider;
             this.locationsService = locationsService;
             this.directionsCache = directionsCache;
         }
