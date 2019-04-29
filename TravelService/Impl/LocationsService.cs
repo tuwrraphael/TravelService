@@ -43,13 +43,13 @@ namespace TravelService.Impl
 
         public async Task<ResolvedLocation> ResolveAsync(string userId, UnresolvedLocation toResolve, ResolvedLocation userLocation = null)
         {
-            if (null == toResolve.Address)
-            {
-                return null;
-            }
             if (null != toResolve.Coordinate)
             {
                 return new ResolvedLocation(toResolve.Coordinate);
+            }
+            if (null == toResolve.Address)
+            {
+                return null;
             }
             var resolved = await resolvedLocationsStore.GetAsync(toResolve.Address, userId);
             if (null != resolved)
