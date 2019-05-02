@@ -82,7 +82,7 @@ namespace TravelService.Controllers
         [Authorize("Service")]
         public async Task<IActionResult> GetForUser(string userId, [FromQuery]DirectionsQueryParameters directionsQueryParameters)
         {
-            return await GetDirections(null, directionsQueryParameters);
+            return await GetDirections(userId, directionsQueryParameters);
         }
 
         [HttpGet("me/directions/transit")]
