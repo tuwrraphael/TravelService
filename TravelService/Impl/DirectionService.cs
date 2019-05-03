@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Models.Directions;
@@ -12,15 +10,15 @@ namespace TravelService.Impl
     {
         private static readonly ResolvedLocation Vienna = new ResolvedLocation(new Coordinate(48.210033, 16.363449));
 
-        private readonly IEnumerable<ITransitDirectionProvider> transitDirectionProviders;
+        private readonly ITransitDirectionProvider transitDirectionProvider;
         private readonly ILocationsService locationsService;
         private readonly IDirectionsCache directionsCache;
 
-        public DirectionService(IEnumerable<ITransitDirectionProvider> transitDirectionProviders,
+        public DirectionService(ITransitDirectionProvider transitDirectionProvider,
             ILocationsService locationsService,
             IDirectionsCache directionsCache)
         {
-            this.transitDirectionProviders = transitDirectionProviders;
+            this.transitDirectionProvider = transitDirectionProvider;
             this.locationsService = locationsService;
             this.directionsCache = directionsCache;
         }
@@ -58,14 +56,19 @@ namespace TravelService.Impl
             }
             from = resolvedStart.Coordinate;
             to = resolvedEnd.Coordinate;
-            var directionTasks = transitDirectionProviders.Select(v => v.GetDirectionsAsync(new TransitDirectionsRequest
+            var plan = await transitDirectionProvider.GetDirectionsAsync(new TransitDirectionsRequest
             {
                 ArriveBy = request.ArriveBy,
                 DateTime = request.DateTime,
                 From = from,
                 To = to
-            }));
-            return await directionsCache.PutAsync(new TransitDirections() { Routes = (await Task.WhenAll(directionTasks)).Where(v => null != v).SelectMany(v => v.Routes).ToArray() });
+            });
+            string cacheKey = await directionsCache.PutAsync(plan);
+            return new DirectionsResult()
+            {
+                CacheKey = cacheKey,
+                TransitDirections = plan.GetTransitDirections()
+            };
         }
     }
 }

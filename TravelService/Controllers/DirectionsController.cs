@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TravelService.Impl;
 using TravelService.Models;
 using TravelService.Services;
 
@@ -98,8 +99,8 @@ namespace TravelService.Controllers
             var res = await directionsCache.GetAsync(cacheKey);
             if (null != res)
             {
-                Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
-                return Ok(res.TransitDirections);
+                Response.Headers.Add("ETag", $"\"{cacheKey}\"");
+                return Ok(res.GetTransitDirections());
             }
             else
             {

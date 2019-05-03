@@ -26,7 +26,7 @@ namespace TravelService.Impl.WienerLinien
             return new DateTimeOffset(dt, tz.GetUtcOffset(dt));
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest request)
+        public async Task<Plan> GetDirectionsAsync(TransitDirectionsRequest request)
         {
             var directions = await _wienerLinienRoutingClient.RequestTripAsync(request);
             if (null == directions || directions.trips == null || !directions.trips.Any())
@@ -41,34 +41,30 @@ namespace TravelService.Impl.WienerLinien
                     var departureTime = ParseWLDateTime(departurePoint.dateTime);
                     Point arrivalPoint = d.trip.legs.Last().points.Where(v => v.usage == "arrival").Single();
                     var arrivalTime = ParseWLDateTime(arrivalPoint.dateTime);
-                    return new Route()
+                    return new Itinerary()
                     {
-                        ArrivalTime = arrivalTime,
-                        DepatureTime = departureTime,
-                        Duration = TimeSpan.ParseExact(d.trip.duration, "hh':'mm", CultureInfo.InvariantCulture).TotalSeconds,
-                        StartAddress = departurePoint.name,
-                        EndAddress = arrivalPoint.name,
-                        Steps = d.trip.legs.Where(f => f.mode.type != "100").Select(v =>
+                        EndTime = arrivalTime,
+                        StartTime = departureTime,
+                        Legs = d.trip.legs.Where(f => f.mode.type != "100").Select(v =>
                         {
                             Point legDeparturePoint = v.points.Where(e => e.usage == "departure").Single();
                             var legDepartureTime = ParseWLDateTime(legDeparturePoint.dateTime);
                             Point legArrivalPoint = v.points.Where(e => e.usage == "arrival").Single();
                             var legArrivalTime = ParseWLDateTime(legArrivalPoint.dateTime);
-                            return new Step()
+                            return new Models.Leg()
                             {
-                                ArrivalStop = new Stop()
+                                From = new Place()
                                 {
                                     Name = legArrivalPoint.name
                                 },
-                                DepartureStop = new Stop()
+                                To = new Place()
                                 {
                                     Name = legDeparturePoint.name
                                 },
-                                ArrivalTime = legArrivalTime,
-                                DepartureTime = legDepartureTime,
-                                Duration = (legArrivalTime - legDepartureTime).TotalSeconds,
+                                EndTime = legArrivalTime,
+                                StartTime = legDepartureTime,
                                 Headsign = v.mode.destination,
-                                Line = new Line()
+                                Line = new Models.Line()
                                 {
                                     Name = v.mode.name,
                                     ShortName = v.mode.number,
@@ -79,18 +75,18 @@ namespace TravelService.Impl.WienerLinien
                         }).ToArray(),
                     };
                 });
-            IEnumerable<Route> ordered;
+            IEnumerable<Itinerary> ordered;
             if (request.ArriveBy == false)
             {
-                ordered = routes.OrderBy(r => Math.Abs((r.DepatureTime - request.DateTime).TotalSeconds));
+                ordered = routes.OrderBy(r => Math.Abs((r.StartTime - request.DateTime).TotalSeconds));
             }
             else
             {
-                ordered = routes.OrderBy(r => Math.Abs((r.ArrivalTime - request.DateTime).TotalSeconds));
+                ordered = routes.OrderBy(r => Math.Abs((r.EndTime - request.DateTime).TotalSeconds));
             }
-            return new TransitDirections()
+            return new Plan()
             {
-                Routes = ordered.ToArray()
+                Itineraries = ordered.ToArray(),
             };
         }
     }

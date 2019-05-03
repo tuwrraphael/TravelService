@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Threading.Tasks;
-using TravelService.Models.Directions;
+using TravelService.Models;
 using TravelService.Services;
 
 namespace TravelService.Impl
@@ -15,21 +15,16 @@ namespace TravelService.Impl
             this.memoryCache = memoryCache;
         }
 
-        public async Task<DirectionsResult> GetAsync(string key)
+        public async Task<Plan> GetAsync(string key)
         {
-            return memoryCache.Get<DirectionsResult>(key);
+            return memoryCache.Get<Plan>(key);
         }
 
-        public async Task<DirectionsResult> PutAsync(TransitDirections directions)
+        public async Task<string> PutAsync(Plan directions)
         {
             var key = Guid.NewGuid().ToString();
-            var res = new DirectionsResult()
-            {
-                CacheKey = key,
-                TransitDirections = directions
-            };
-            memoryCache.Set(key, res);
-            return res;
+            memoryCache.Set(key, directions);
+            return key;
         }
     }
 }

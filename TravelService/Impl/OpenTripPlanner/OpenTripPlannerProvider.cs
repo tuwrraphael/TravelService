@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using TravelService.Models;
-using TravelService.Models.Directions;
 using TravelService.Services;
 
 namespace TravelService.Impl.OpenTripPlanner
@@ -102,7 +101,7 @@ namespace TravelService.Impl.OpenTripPlanner
             _openTripPlannerClient = openTripPlannerClient;
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest request)
+        public async Task<Models.Plan> GetDirectionsAsync(TransitDirectionsRequest request)
         {
             var res = await _openTripPlannerClient.Plan(new OpenTripPlannerRequest()
             {
@@ -115,46 +114,35 @@ namespace TravelService.Impl.OpenTripPlanner
             {
                 return null;
             }
-            var routes = res.Plan.Itineraries.Select(i => new Route()
+            var routes = res.Plan.Itineraries.Select(i => new Models.Itinerary()
             {
-                ArrivalTime = DateTimeOffset.FromUnixTimeMilliseconds(i.EndTime),
-                DepatureTime = DateTimeOffset.FromUnixTimeMilliseconds(i.StartTime),
-                Duration = i.Duration,
-                StartLocation = new Coordinate()
+                EndTime = DateTimeOffset.FromUnixTimeMilliseconds(i.EndTime),
+                StartTime = DateTimeOffset.FromUnixTimeMilliseconds(i.StartTime),
+
+                Legs = i.Legs.Where(l => l.TransitLeg).Select(l => new Models.Leg()
                 {
-                    Lat = res.Plan.From.Lat,
-                    Lng = res.Plan.From.Lon
-                },
-                EndLocation = new Coordinate()
-                {
-                    Lat = res.Plan.To.Lat,
-                    Lng = res.Plan.To.Lon
-                },
-                Steps = i.Legs.Where(l => l.TransitLeg).Select(l => new Step()
-                {
-                    ArrivalStop = new Stop()
+                    To = new Models.Place()
                     {
-                        Location = new Coordinate()
+                        Coordinate = new Coordinate()
                         {
                             Lat = l.To.Lat,
                             Lng = l.To.Lon
                         },
                         Name = l.To.Name
                     },
-                    DepartureStop = new Stop()
+                    From = new Models.Place()
                     {
-                        Location = new Coordinate()
+                        Coordinate = new Coordinate()
                         {
                             Lat = l.From.Lat,
                             Lng = l.From.Lon
                         },
                         Name = l.From.Name
                     },
-                    ArrivalTime = DateTimeOffset.FromUnixTimeMilliseconds(l.EndTime),
-                    DepartureTime = DateTimeOffset.FromUnixTimeMilliseconds(l.StartTime),
-                    Duration = l.Duration,
+                    EndTime = DateTimeOffset.FromUnixTimeMilliseconds(l.EndTime),
+                    StartTime = DateTimeOffset.FromUnixTimeMilliseconds(l.StartTime),
                     Headsign = l.Headsign,
-                    Line = new Line()
+                    Line = new Models.Line()
                     {
                         Name = l.RouteLongName,
                         ShortName = l.RouteShortName,
@@ -163,9 +151,27 @@ namespace TravelService.Impl.OpenTripPlanner
                     NumStops = l.From.StopIndex.HasValue && l.To.StopIndex.HasValue ? (l.To.StopIndex.Value - l.From.StopIndex.Value) : 0
                 }).ToArray()
             }).ToArray();
-            return new TransitDirections()
+            return new Models.Plan()
             {
-                Routes = routes
+                Itineraries = routes,
+                From = new Models.Place()
+                {
+                    Coordinate = new Coordinate()
+                    {
+                        Lat = res.Plan.From.Lat,
+                        Lng = res.Plan.From.Lon
+                    },
+                    Name = res.Plan.From.Name
+                },
+                To = new Models.Place()
+                {
+                    Coordinate = new Coordinate()
+                    {
+                        Lat = res.Plan.To.Lat,
+                        Lng = res.Plan.To.Lon
+                    },
+                    Name = res.Plan.To.Name
+                }
             };
         }
     }

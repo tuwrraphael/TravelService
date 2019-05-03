@@ -6,7 +6,7 @@ namespace TravelService.Services
 {
     public interface IDirectionsCache
     {
-        Task<DirectionsResult> PutAsync(TransitDirections directions);
-        Task<DirectionsResult> GetAsync(string key);
+        Task<string> PutAsync(Plan directions);
+        Task<Plan> GetAsync(string key);
     }
 }

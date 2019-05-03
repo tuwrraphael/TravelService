@@ -37,7 +37,7 @@ namespace TravelService.Impl.GoogleMaps
             }
         }
 
-        public async Task<TransitDirections> GetDirectionsAsync(TransitDirectionsRequest r)
+        public async Task<Plan> GetDirectionsAsync(TransitDirectionsRequest r)
         {
             var request = new GoogleMapsApi.Entities.Directions.Request.DirectionsRequest()
             {
@@ -61,20 +61,15 @@ namespace TravelService.Impl.GoogleMaps
             }
             var routes = res.Routes
                 .Where(v => v.Legs.Any() && v.Legs.First().Steps.Any(b => b.TravelMode == GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit))
-                .Select(v => v.Legs.First()).Select(v => new Route()
+                .Select(v => v.Legs.First()).Select(v => new Itinerary()
                 {
-                    ArrivalTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.ArrivalTime.Value),
-                    DepatureTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.DepartureTime.Value),
-                    Duration = v.Duration.Value.TotalSeconds,
-                    EndAddress = v.EndAddress,
-                    EndLocation = v.EndLocation != null ? new Coordinate() { Lat = v.EndLocation.Latitude, Lng = v.EndLocation.Longitude } : null,
-                    StartLocation = v.StartLocation != null ? new Coordinate() { Lat = v.StartLocation.Latitude, Lng = v.StartLocation.Longitude } : null,
-                    StartAddress = v.StartAddress,
-                    Steps = v.Steps.Where(step => step.TravelMode == GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit).Select(step => new Step()
+                    EndTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.ArrivalTime.Value),
+                    StartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(v.DepartureTime.Value),
+                    Legs = v.Steps.Where(step => step.TravelMode == GoogleMapsApi.Entities.Directions.Request.TravelMode.Transit).Select(step => new Leg()
                     {
-                        ArrivalStop = null != step.TransitDetails?.ArrivalStop ? new Stop()
+                        To = null != step.TransitDetails?.ArrivalStop ? new Place()
                         {
-                            Location =
+                            Coordinate =
                                 new Coordinate()
                                 {
                                     Lat = step.TransitDetails.ArrivalStop.Location.Latitude,
@@ -82,9 +77,9 @@ namespace TravelService.Impl.GoogleMaps
                                 },
                             Name = step.TransitDetails.ArrivalStop.Name
                         } : null,
-                        DepartureStop = null != step.TransitDetails?.DepartureStop ? new Stop()
+                        From = null != step.TransitDetails?.DepartureStop ? new Place()
                         {
-                            Location =
+                            Coordinate =
                                 new Coordinate()
                                 {
                                     Lat = step.TransitDetails.DepartureStop.Location.Latitude,
@@ -92,22 +87,21 @@ namespace TravelService.Impl.GoogleMaps
                                 },
                             Name = step.TransitDetails.DepartureStop.Name
                         } : null,
-                        Duration = step.Duration.Value.TotalSeconds,
                         Headsign = step.TransitDetails.Headsign,
-                        Line = null != step.TransitDetails.Lines ? new Line()
+                        Line = null != step.TransitDetails.Lines ? new Models.Line()
                         {
                             Name = step.TransitDetails.Lines.Name,
                             ShortName = step.TransitDetails.Lines.ShortName,
                             VehicleType = "Unknown"
                         } : null,
-                        ArrivalTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(step.TransitDetails.ArrivalTime.Value),
-                        DepartureTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(step.TransitDetails.DepartureTime.Value),
+                        EndTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(step.TransitDetails.ArrivalTime.Value),
+                        StartTime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).Add(step.TransitDetails.DepartureTime.Value),
                         NumStops = step.TransitDetails.NumberOfStops
                     }).ToArray()
                 }).ToArray();
-            return new TransitDirections()
+            return new Plan()
             {
-                Routes = routes
+                Itineraries = routes
             };
         }
     }
