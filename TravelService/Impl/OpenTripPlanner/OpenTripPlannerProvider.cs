@@ -1,100 +1,67 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using TravelService.Models;
 using TravelService.Services;
 
 namespace TravelService.Impl.OpenTripPlanner
 {
-    public class OpenTripPlannerClient : IOpenTripPlannerClient
-    {
-        private readonly HttpClient _client;
-
-        public OpenTripPlannerClient(HttpClient client)
-        {
-            _client = client;
-        }
-
-        public async Task<OpenTripPlannerResponse> Plan(OpenTripPlannerRequest request)
-        {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            query["fromPlace"] = $"{request.FromPlace.Lat.ToString(CultureInfo.InvariantCulture)},{request.FromPlace.Lng.ToString(CultureInfo.InvariantCulture)}";
-            query["toPlace"] = $"{request.ToPlace.Lat.ToString(CultureInfo.InvariantCulture)},{request.ToPlace.Lng.ToString(CultureInfo.InvariantCulture)}";
-
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-            var viennaTime = request.DateTime.ToOffset(timeZoneInfo.GetUtcOffset(request.DateTime));
-            query["date"] = viennaTime.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            query["time"] = viennaTime.DateTime.ToString("HH:mm", CultureInfo.InvariantCulture);
-            query["arriveBy"] = request.ArriveBy ? "true" : "false";
-            query["mode"] = "TRANSIT,WALK";
-            query["maxWalkDistance"] = "1000";
-            var res = await _client.GetAsync($"otp/routers/default/plan?{query.ToString()}");
-            if (!res.IsSuccessStatusCode)
-            {
-                throw new OpenTripPlannerException($"Request to OpenTripPlanner returned : {res.StatusCode}");
-            }
-            var content = await res.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<OpenTripPlannerResponse>(content);
-        }
-    }
-
-    public class OpenTripPlannerRequest
-    {
-        public Coordinate FromPlace { get; set; }
-        public Coordinate ToPlace { get; set; }
-        public DateTimeOffset DateTime { get; set; }
-        public bool ArriveBy { get; set; }
-    }
-
-    public class OpenTripPlannerResponse
-    {
-        public Plan Plan { get; set; }
-    }
-
-    public class Plan
-    {
-        public Itinerary[] Itineraries { get; set; }
-        public Place From { get; set; }
-        public Place To { get; set; }
-    }
-
-    public class Itinerary
-    {
-        public int Duration { get; set; }
-        public long StartTime { get; set; }
-        public long EndTime { get; set; }
-        public Leg[] Legs { get; set; }
-    }
-
-    public class Place
-    {
-        public string Name { get; set; }
-        public double Lon { get; set; }
-        public double Lat { get; set; }
-        public int? StopIndex { get; set; }
-    }
-
-    public class Leg
-    {
-        public bool TransitLeg { get; set; }
-        public Place From { get; set; }
-        public Place To { get; set; }
-        public long StartTime { get; set; }
-        public long EndTime { get; set; }
-        public int Duration { get; set; }
-        public string Headsign { get; set; }
-        public string RouteShortName { get; set; }
-        public string RouteLongName { get; set; }
-        public string Mode { get; set; }
-    }
-
     public class OpenTripPlannerProvider : ITransitDirectionProvider
     {
         private readonly IOpenTripPlannerClient _openTripPlannerClient;
+
+        private static Coordinate[] DecodePolyLine(string encodedPolyLine)
+        {
+            if (string.IsNullOrEmpty(encodedPolyLine))
+            {
+                return null;
+            }
+            char[] polylineChars = encodedPolyLine.ToCharArray();
+            int index = 0;
+
+            int currentLat = 0;
+            int currentLng = 0;
+            int next5bits;
+            int sum;
+            int shifter;
+            var coords = new List<Coordinate>();
+            while (index < polylineChars.Length)
+            {
+                // calculate next latitude
+                sum = 0;
+                shifter = 0;
+                do
+                {
+                    next5bits = (int)polylineChars[index++] - 63;
+                    sum |= (next5bits & 31) << shifter;
+                    shifter += 5;
+                } while (next5bits >= 32 && index < polylineChars.Length);
+
+                if (index >= polylineChars.Length)
+                    break;
+
+                currentLat += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
+
+                //calculate next longitude
+                sum = 0;
+                shifter = 0;
+                do
+                {
+                    next5bits = (int)polylineChars[index++] - 63;
+                    sum |= (next5bits & 31) << shifter;
+                    shifter += 5;
+                } while (next5bits >= 32 && index < polylineChars.Length);
+
+                if (index >= polylineChars.Length && next5bits >= 32)
+                    break;
+
+                currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
+                coords.Add(new Coordinate(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
+            }
+            return coords.ToArray();
+        }
+
 
         public OpenTripPlannerProvider(IOpenTripPlannerClient openTripPlannerClient)
         {
@@ -142,13 +109,14 @@ namespace TravelService.Impl.OpenTripPlanner
                     EndTime = DateTimeOffset.FromUnixTimeMilliseconds(l.EndTime),
                     StartTime = DateTimeOffset.FromUnixTimeMilliseconds(l.StartTime),
                     Headsign = l.Headsign,
-                    Line = new Models.Line()
+                    Line = new Line()
                     {
                         Name = l.RouteLongName,
                         ShortName = l.RouteShortName,
                         VehicleType = l.Mode
                     },
-                    NumStops = l.From.StopIndex.HasValue && l.To.StopIndex.HasValue ? (l.To.StopIndex.Value - l.From.StopIndex.Value) : 0
+                    NumStops = l.From.StopIndex.HasValue && l.To.StopIndex.HasValue ? (l.To.StopIndex.Value - l.From.StopIndex.Value) : 0,
+                    Geometry = DecodePolyLine(l.LegGeometry?.Points)
                 }).ToArray()
             }).ToArray();
             return new Models.Plan()
