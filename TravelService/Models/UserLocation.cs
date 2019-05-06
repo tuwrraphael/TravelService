@@ -1,17 +1,19 @@
-﻿namespace TravelService.Models
+﻿using System;
+
+namespace TravelService.Models
 {
-    public class UnresolvedLocation
+    public class UserLocation
     {
-        public const string Home = "#home";
-        public UnresolvedLocation(Coordinate coordinate)
-        {
-            Coordinate = coordinate;
-        }
-        public UnresolvedLocation(string address)
-        {
-            Address = address;
-        }
-        public Coordinate Coordinate { get; }
-        public string Address { get;  }
+        public Coordinate Coordinate { get; set; }
+        /// <summary>
+        /// radius of confidence of the coordinate
+        /// </summary>
+        public UserLocationAccuracy Accuracy { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
+    }
+    public class UserLocationAccuracy
+    {
+        public double Radius { get; set; }
+        public double Confidence { get; set; }
     }
 }
