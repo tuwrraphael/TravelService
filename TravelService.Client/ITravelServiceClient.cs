@@ -1,4 +1,6 @@
-﻿namespace TravelService.Client
+using TravelService.Client.ApiDefinition;
+
+namespace TravelService.Client
 {
     public interface ITravelServiceClient
     {

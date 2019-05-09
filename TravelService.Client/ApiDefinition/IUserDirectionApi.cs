@@ -1,4 +1,4 @@
-﻿namespace TravelService.Client
+namespace TravelService.Client.ApiDefinition
 {
     public interface IUserDirectionApi
     {

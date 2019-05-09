@@ -47,6 +47,19 @@ namespace TravelService.Controllers
             return Ok();
         }
 
+        [HttpPut("{userId}/locations/{term}")]
+        [Authorize("Service")]
+        public async Task<IActionResult> Put(string userId, string term, [FromBody] AddResolvedLocationRequest resolvedLocation)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            await locationsService.PersistAsync(userId, term,
+                new ResolvedLocation(new Coordinate(resolvedLocation.Lat, resolvedLocation.Lng)));
+            return Ok();
+        }
+
         [HttpDelete("me/locations/{term}")]
         [Authorize("User")]
         public async Task<IActionResult> Delete(string term)

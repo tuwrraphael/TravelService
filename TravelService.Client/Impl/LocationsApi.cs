@@ -1,23 +1,21 @@
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TravelService.Client.ApiDefinition;
 
 namespace TravelService.Client.Impl
 {
-    internal class DirectionsApi : IDirectionsApi, IUserDirectionApi
+    internal class LocationsApi : ILocationsApi
     {
         private readonly Func<Task<HttpClient>> clientFactory;
         private readonly string _userId;
 
-        public DirectionsApi(Func<Task<HttpClient>> clientFactory, string userId)
+        public LocationsApi(Func<Task<HttpClient>> clientFactory, string userId)
         {
             this.clientFactory = clientFactory;
             _userId = userId;
         }
 
-        public IDirectionApi this[string cacheKey] => new DirectionApi(clientFactory, cacheKey);
-
-        public ITransitApi Transit => new TransitApi(clientFactory, _userId);
+        public ILocationApi this[string name] => new LocationApi(clientFactory, _userId, name);
     }
 }
