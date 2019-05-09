@@ -15,7 +15,7 @@ namespace TravelService.Client.Impl
         private readonly string _userId;
         private readonly string _name;
 
-        public LocationApi(Func<Task<HttpClient>> clientFactory,string userId, string name)
+        public LocationApi(Func<Task<HttpClient>> clientFactory, string userId, string name)
         {
             _clientFactory = clientFactory;
             _userId = userId;
@@ -31,6 +31,13 @@ namespace TravelService.Client.Impl
             {
                 throw new TravelServiceException($"Could not put location: {res.StatusCode}");
             }
+        }
+
+        public async Task<bool> Resolve()
+        {
+            var url = $"api/{_userId}/locations/{HttpUtility.UrlEncode(_name)}";
+            var res = await (await _clientFactory()).GetAsync(url);
+            return res.IsSuccessStatusCode;
         }
     }
 }

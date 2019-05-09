@@ -6,5 +6,6 @@ namespace TravelService.Client.ApiDefinition
     public interface ILocationApi
     {
         Task Put(Coordinate c);
+        Task<bool> Resolve();
     }
 }

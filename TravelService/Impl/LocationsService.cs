@@ -56,6 +56,10 @@ namespace TravelService.Impl
             {
                 return resolved;
             }
+            if ("#home" == toResolve.Address || toResolve.Address.StartsWith("#event:"))
+            {
+                return null;
+            }
             return (await locationsProvider.Find(toResolve.Address, userLocation))?.FirstOrDefault();
         }
     }
