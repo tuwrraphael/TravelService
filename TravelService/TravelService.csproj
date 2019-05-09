@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="CalendarService.Client" Version="2.1.2" />
     <PackageReference Include="DigitService.Client" Version="1.0.4" />
-    <PackageReference Include="Geolocation" Version="1.1.1" />
+    <PackageReference Include="Geolocation.NetStandard" Version="1.1.1" />
     <PackageReference Include="GoogleMapsApi" Version="0.78.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.3" />

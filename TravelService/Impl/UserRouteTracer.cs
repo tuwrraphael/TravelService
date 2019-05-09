@@ -269,7 +269,15 @@ namespace TravelService.Impl
 
         private double GetDistance(Coordinate c1, Coordinate c2)
         {
-            return GeoCalculator.GetDistance(c1, c2, DecimalPlaces, Geolocation.DistanceUnit.Meters);
+            return GeoCalculator.GetDistance(new Geolocation.Coordinate()
+            {
+                Latitude = c1.Lat,
+                Longitude = c1.Lng
+            }, new Geolocation.Coordinate()
+            {
+                Latitude = c2.Lat,
+                Longitude = c2.Lng
+            }, DecimalPlaces, Geolocation.DistanceUnit.Meters);
         }
 
         private double Radians(double angle)
