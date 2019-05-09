@@ -10,6 +10,9 @@ namespace TravelService
         public LocationNotFoundException(UnresolvedLocation unresolvedLocation):
             base($"Cannot resolve {unresolvedLocation.Address}/{unresolvedLocation.Coordinate}")
         {
+            UnresolvedLocation = unresolvedLocation;
         }
+
+        public UnresolvedLocation UnresolvedLocation { get; }
     }
 }

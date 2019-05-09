@@ -1,19 +1,17 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelService.Models
 {
-    public class UserLocation
+    public class TraceLocation
     {
         public Coordinate Coordinate { get; set; }
         /// <summary>
         /// radius of confidence of the coordinate
         /// </summary>
-        public UserLocationAccuracy Accuracy { get; set; }
+
+        public TraceLocationAccuracy Accuracy { get; set; }
+        
         public DateTimeOffset Timestamp { get; set; }
-    }
-    public class UserLocationAccuracy
-    {
-        public double Radius { get; set; }
-        public double Confidence { get; set; }
     }
 }

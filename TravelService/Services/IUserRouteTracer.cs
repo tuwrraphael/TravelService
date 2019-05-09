@@ -4,6 +4,7 @@ namespace TravelService.Services
 {
     public interface IUserRouteTracer
     {
-        TraceMeasures TraceUserOnItinerary(Itinerary itinerary, UserLocation location);
+        TraceMeasures TraceUserOnItinerary(Itinerary itinerary, TraceLocation location);
+        TraceMeasures TraceUserWithParticles(Itinerary itinerary, TraceLocation location);
     }
 }

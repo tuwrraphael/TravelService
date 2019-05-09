@@ -32,10 +32,10 @@ namespace TravelService.Controllers
                     }
                 }
             };
-            var result = userRouteTracer.TraceUserOnItinerary(i, new UserLocation()
+            var result = userRouteTracer.TraceUserWithParticles(i, new TraceLocation()
             {
                 Coordinate = new Coordinate(lat, lng),
-                Accuracy = new UserLocationAccuracy()
+                Accuracy = new TraceLocationAccuracy()
                 {
                     Confidence = 0.68,
                     Radius = acc

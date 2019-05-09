@@ -17,9 +17,68 @@ namespace TravelService.Impl
         private const int DecimalPlaces = 6;
         private const double PointDistance = 4;
         private const double StandardRouteWidth = 20;
+        private const double AllowedDeviation = 25;
         private const double StandardConfidence = 0.95;
+        private const uint NumParticles = 500;
+        private const double EarthRadius = 6371 * 1000;
 
-        public TraceMeasures TraceUserOnItinerary(Itinerary itinerary, UserLocation location)
+        private static readonly Random random = new Random();
+
+        public TraceMeasures TraceUserWithParticles(Itinerary itinerary, TraceLocation location)
+        {
+            var polyLine = itinerary.Legs.SelectMany(d => d.Geometry).ToList();
+            if (polyLine.Count < 2)
+            {
+                throw new Exception("Itinerary must have at least two points");
+            }
+            var standardDeviation = GetStandardDeviation(location.Accuracy);
+            var z = NormalDistributionTable.ReverseLookUpD(StandardConfidence);
+            var radiusStandardConfidence = z * standardDeviation;
+            var denseLine = InsertPointsBetween(polyLine).ToList();
+            double countOnPath = 0;
+            double routeWidth = Math.Max(AllowedDeviation, (4 * radiusStandardConfidence) / 3.0);
+            for (int i = 0; i < NumParticles; i++)
+            {
+                var distance = CoordinatePolyLineDistance(denseLine,
+                    GetNormalDistributedParticle(standardDeviation, location.Coordinate));
+                if (distance <= routeWidth)
+                {
+                    countOnPath++;
+                }
+            }
+            return new TraceMeasures
+            {
+                ConfidenceOnRoute = countOnPath / NumParticles,
+                RouteWidth = routeWidth
+            };
+        }
+
+        private double CoordinatePolyLineDistance(List<Coordinate> denseLine, Coordinate x3)
+        {
+            return denseLine.Select(v => GetDistance(v, x3)).OrderBy(v => v).First();
+        }
+
+        private Coordinate GetNormalDistributedParticle(double standardDeviation, Coordinate center)
+        {
+            double u1 = 1.0 - random.NextDouble();
+            double u2 = 1.0 - random.NextDouble();
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) *
+                         Math.Sin(2.0 * Math.PI * u2);
+            double randNormal =
+                         0 + standardDeviation * randStdNormal;
+
+            var bearing = random.NextDouble() * 360;
+
+            var lat = Math.Asin(Math.Sin(Radians(center.Lat)) * Math.Cos(randNormal / EarthRadius) +
+                    Math.Cos(Radians(center.Lat)) * Math.Sin(randNormal / EarthRadius) * Math.Cos(Radians(bearing)));
+            var lng = Radians(center.Lng) + Math.Atan2(Math.Sin(Radians(bearing)) * Math.Sin(randNormal / EarthRadius)
+                * Math.Cos(Radians(center.Lat)),
+                                     Math.Cos(randNormal / EarthRadius) - Math.Sin(Radians(center.Lat)) * Math.Sin(lat));
+
+            return new Coordinate(Degrees(lat), Degrees(lng));
+        }
+
+        public TraceMeasures TraceUserOnItinerary(Itinerary itinerary, TraceLocation location)
         {
             var polyLine = itinerary.Legs.SelectMany(d => d.Geometry).ToList();
             if (polyLine.Count < 2)
@@ -176,7 +235,7 @@ namespace TravelService.Impl
 
         }
 
-        private double GetStandardDeviation(UserLocationAccuracy accuracy)
+        private double GetStandardDeviation(TraceLocationAccuracy accuracy)
         {
             var z = NormalDistributionTable.ReverseLookUpD(accuracy.Confidence);
             return accuracy.Radius / z;

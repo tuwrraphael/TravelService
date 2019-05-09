@@ -28,10 +28,10 @@ namespace TravelService.Tests
                     }
                 }
             };
-            var result = userRouteTracer.TraceUserOnItinerary(i, new UserLocation()
+            var result = userRouteTracer.TraceUserOnItinerary(i, new TraceLocation()
             {
                 Coordinate = new Coordinate(48.239071, 16.451171),
-                Accuracy = new UserLocationAccuracy()
+                Accuracy = new TraceLocationAccuracy()
                 {
                     Confidence = 0.68,
                     Radius = 20

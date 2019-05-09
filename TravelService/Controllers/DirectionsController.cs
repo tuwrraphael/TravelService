@@ -14,13 +14,16 @@ namespace TravelService.Controllers
         private readonly IDirectionService directionsService;
         private readonly IDirectionsCache directionsCache;
         private readonly ILogger<DirectionsController> _logger;
+        private readonly IUserRouteTracer _userRouteTracer;
 
         public DirectionsController(IDirectionService directionsService,
-            IDirectionsCache directionsCache, ILogger<DirectionsController> logger)
+            IDirectionsCache directionsCache, ILogger<DirectionsController> logger,
+            IUserRouteTracer userRouteTracer)
         {
             this.directionsService = directionsService;
             this.directionsCache = directionsCache;
             _logger = logger;
+            _userRouteTracer = userRouteTracer;
         }
 
         [HttpGet("directions/transit")]
@@ -57,25 +60,40 @@ namespace TravelService.Controllers
             {
                 return BadRequest();
             }
+            var endAdress = new UnresolvedLocation(directionsQueryParameters.EndAddress);
             try
             {
                 var res = await directionsService.GetTransitAsync(new DirectionsRequest()
                 {
                     UserId = userId,
                     StartAddress = start,
-                    EndAddress = new UnresolvedLocation(directionsQueryParameters.EndAddress),
+                    EndAddress = endAdress,
                     DateTime = directionsQueryParameters.DepartureTime.HasValue ?
                         directionsQueryParameters.DepartureTime.Value :
                         directionsQueryParameters.ArrivalTime.Value,
                     ArriveBy = directionsQueryParameters.ArrivalTime.HasValue
                 });
+                if (null == res)
+                {
+                    return NotFound(new DirectionsNotFoundResult()
+                    {
+                        Reason = DirectionsNotFoundReason.RouteNotFound,
+                        EndAddressFound = true,
+                        StartAddressFound = true
+                    });
+                }
                 Response.Headers.Add("ETag", $"\"{res.CacheKey}\"");
+
                 return Ok(res.TransitDirections);
             }
             catch (LocationNotFoundException e)
             {
-                _logger.LogError(e, "Could not resolve location");
-                return NotFound();
+                return NotFound(new DirectionsNotFoundResult()
+                {
+                    Reason = DirectionsNotFoundReason.AddressNotFound,
+                    EndAddressFound = e.UnresolvedLocation == endAdress,
+                    StartAddressFound = e.UnresolvedLocation != endAdress
+                });
             }
         }
 
@@ -101,6 +119,33 @@ namespace TravelService.Controllers
             {
                 Response.Headers.Add("ETag", $"\"{cacheKey}\"");
                 return Ok(res.GetTransitDirections());
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("directions/{cacheKey}/itineraries/{index}/trace")]
+        public async Task<IActionResult> Get(string cacheKey, int index, [FromQuery]TraceQueryParameters location)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var res = await directionsCache.GetAsync(cacheKey);
+            if (null != res && index < res.Itineraries.Length)
+            {
+                return Ok(_userRouteTracer.TraceUserWithParticles(res.Itineraries[index], new TraceLocation
+                {
+                    Accuracy = new TraceLocationAccuracy()
+                    {
+                        Confidence = location.AccuracyConfidence,
+                        Radius = location.AccuracyRadius
+                    },
+                    Coordinate = new Coordinate(location.Lat, location.Lng),
+                    Timestamp = location.Timestamp
+                }));
             }
             else
             {
