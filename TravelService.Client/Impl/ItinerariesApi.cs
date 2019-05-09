@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TravelService.Client.ApiDefinition;
 
-namespace TravelService.Client
+namespace TravelService.Client.Impl
 {
     internal class ItinerariesApi : IItinerariesApi
     {

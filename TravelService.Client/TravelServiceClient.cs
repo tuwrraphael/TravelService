@@ -2,6 +2,8 @@
 using OAuthApiClient.Abstractions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TravelService.Client.ApiDefinition;
+using TravelService.Client.Impl;
 
 namespace TravelService.Client
 {

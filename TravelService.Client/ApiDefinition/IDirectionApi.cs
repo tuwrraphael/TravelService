@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Models.Directions;
 
-namespace TravelService.Client
+namespace TravelService.Client.ApiDefinition
 {
     public interface IDirectionApi
     {

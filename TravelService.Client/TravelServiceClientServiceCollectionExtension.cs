@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OAuthApiClient.Abstractions;
 using System;
+using TravelService.Client.ApiDefinition;
 
 namespace TravelService.Client
 {

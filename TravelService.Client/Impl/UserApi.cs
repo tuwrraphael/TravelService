@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TravelService.Client.ApiDefinition;
 
-namespace TravelService.Client
+namespace TravelService.Client.Impl
 {
     internal class UserApi : IUserApi
     {
@@ -15,5 +16,7 @@ namespace TravelService.Client
             _userId = userId;
         }
         public IUserDirectionApi Directions => new DirectionsApi(_clientFactory, _userId);
+
+        public ILocationsApi Locations => new LocationsApi(_clientFactory, _userId);
     }
 }
