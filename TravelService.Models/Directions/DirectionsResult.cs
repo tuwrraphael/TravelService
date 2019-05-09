@@ -6,5 +6,6 @@ namespace TravelService.Models.Directions
     {
         public TransitDirections TransitDirections { get; set; }
         public string CacheKey { get; set; }
+        public DirectionsNotFoundResult NotFound { get; set; }
     }
 }

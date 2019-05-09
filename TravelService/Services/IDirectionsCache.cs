@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using TravelService.Models;
-using TravelService.Models.Directions;
 
 namespace TravelService.Services
 {

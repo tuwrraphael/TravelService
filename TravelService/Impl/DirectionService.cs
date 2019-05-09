@@ -63,6 +63,10 @@ namespace TravelService.Impl
                 From = from,
                 To = to
             });
+            if (null == plan)
+            {
+                return null;
+            }
             string cacheKey = await directionsCache.PutAsync(plan);
             return new DirectionsResult()
             {
