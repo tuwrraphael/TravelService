@@ -23,22 +23,6 @@ namespace TravelService.Controllers
             return Ok(location);
         }
 
-        [HttpGet("me/locations/{term}")]
-        [Authorize("User")]
-        public async Task<IActionResult> Get(string term, [FromQuery]double? lat, [FromQuery]double? lng)
-        {
-            var res = await ResolveLocations(term, User.GetId(), lat.HasValue && lng.HasValue ? new ResolvedLocation(new Coordinate()
-            {
-                Lat = lat.Value,
-                Lng = lng.Value
-            }) : null);
-            if (null != res)
-            {
-                return Ok(res);
-            }
-            return NotFound();
-        }
-
         [HttpGet("{userId}/locations/{term}")]
         [Authorize("Service")]
         public async Task<IActionResult> Get(string userId, string term, [FromQuery]double? lat, [FromQuery]double? lng)
@@ -55,18 +39,23 @@ namespace TravelService.Controllers
             return NotFound();
         }
 
-        [HttpPut("me/locations/{term}")]
+        [HttpGet("me/locations/{term}")]
         [Authorize("User")]
-        public async Task<IActionResult> Put(string term, [FromBody] AddResolvedLocationRequest resolvedLocation)
+        public async Task<IActionResult> Get(string term, [FromQuery]double? lat, [FromQuery]double? lng)
         {
-            if (!ModelState.IsValid)
+            var res = await ResolveLocations(term, User.GetId(), lat.HasValue && lng.HasValue ? new ResolvedLocation(new Coordinate()
             {
-                return BadRequest();
+                Lat = lat.Value,
+                Lng = lng.Value
+            }) : null);
+            if (null != res)
+            {
+                return Ok(res);
             }
-            await locationsService.PersistAsync(User.GetId(), term,
-                new ResolvedLocation(new Coordinate(resolvedLocation.Lat, resolvedLocation.Lng)));
-            return Ok();
+            return NotFound();
         }
+
+       
 
         [HttpPut("{userId}/locations/{term}")]
         [Authorize("Service")]
@@ -81,11 +70,16 @@ namespace TravelService.Controllers
             return Ok();
         }
 
-        [HttpDelete("me/locations/{term}")]
+        [HttpPut("me/locations/{term}")]
         [Authorize("User")]
-        public async Task<IActionResult> Delete(string term)
+        public async Task<IActionResult> Put(string term, [FromBody] AddResolvedLocationRequest resolvedLocation)
         {
-            await locationsService.DeleteAsync(User.GetId(), term);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            await locationsService.PersistAsync(User.GetId(), term,
+                new ResolvedLocation(new Coordinate(resolvedLocation.Lat, resolvedLocation.Lng)));
             return Ok();
         }
 
@@ -94,6 +88,14 @@ namespace TravelService.Controllers
         public async Task<IActionResult> Delete(string userId, string term)
         {
             await locationsService.DeleteAsync(userId, term);
+            return Ok();
+        }
+
+        [HttpDelete("me/locations/{term}")]
+        [Authorize("User")]
+        public async Task<IActionResult> Delete(string term)
+        {
+            await locationsService.DeleteAsync(User.GetId(), term);
             return Ok();
         }
     }
