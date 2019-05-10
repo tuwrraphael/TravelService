@@ -28,8 +28,10 @@ namespace TravelService.Controllers
                         new Coordinate(48.238812, 16.452647),
                         new Coordinate(48.238976, 16.451767),
                         new Coordinate(48.239520, 16.448791)
-                        }
-                    }
+                        },
+                        StartTime = DateTime.Now,
+                        EndTime = DateTime.Now.AddMinutes(10)
+                    },
                 }
             };
             var result = userRouteTracer.TraceUserWithParticles(i, new TraceLocation()
@@ -39,7 +41,8 @@ namespace TravelService.Controllers
                 {
                     Confidence = 0.68,
                     Radius = acc
-                }
+                },
+                Timestamp = DateTime.Now.AddMinutes(4)
             });
             return Ok(result);
         }

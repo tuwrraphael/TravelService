@@ -219,7 +219,8 @@
             fetch(`http://localhost:51511/api/Test?lat=${e.latlng.lat}&lng=${e.latlng.lng}&acc=${acc}`)
                 .then(async function (res) {
                     let obj = await res.json();
-                    document.querySelectorAll(".text")[0].innerHTML = `${obj.confidenceOnRoute}`; 
+                    document.querySelectorAll(".text")[0].innerHTML = `${obj.confidenceOnRoute}, delay ${obj.positionOnRoute.delay}`; 
+                    L.marker([obj.positionOnRoute.locationOnRoute.lat, obj.positionOnRoute.locationOnRoute.lng]).addTo(map);
                 });
         }
 

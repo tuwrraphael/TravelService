@@ -22,7 +22,7 @@ namespace TravelService.Impl
                 Duration = (itinerary.EndTime - itinerary.StartTime).TotalSeconds,
                 EndLocation = plan.To.Coordinate,
                 StartLocation = plan.From.Coordinate,
-                Steps = itinerary.Legs.Select(Format).ToArray(),
+                Steps = itinerary.Legs.Where(v => v.TransitLeg).Select(Format).ToArray(),
             };
         }
 

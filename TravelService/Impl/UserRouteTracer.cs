@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using TravelService.Models;
 using TravelService.Services;
@@ -26,7 +25,7 @@ namespace TravelService.Impl
 
         public TraceMeasures TraceUserWithParticles(Itinerary itinerary, TraceLocation location)
         {
-            var polyLine = itinerary.Legs.SelectMany(d => d.Geometry).ToList();
+            var polyLine = itinerary.Legs.Where(d => null != d.Geometry).SelectMany(d => d.Geometry).ToList();
             if (polyLine.Count < 2)
             {
                 throw new Exception("Itinerary must have at least two points");
@@ -49,8 +48,59 @@ namespace TravelService.Impl
             return new TraceMeasures
             {
                 ConfidenceOnRoute = countOnPath / NumParticles,
-                RouteWidth = routeWidth
+                RouteWidth = routeWidth,
+                PositionOnRoute = GetPostitionOnRoute(itinerary, denseLine, location)
             };
+        }
+
+        public PositionOnRoute GetPostitionOnRoute(Itinerary itinerary, List<Coordinate> denseLine, TraceLocation location)
+        {
+            var positionOnRoute = denseLine
+                .Select(v => new { v, Distance = GetDistance(v, location.Coordinate) })
+                .OrderBy(v => v.Distance)
+                .Select(v => v.v)
+                .First();
+            var positionIndex = denseLine.IndexOf(positionOnRoute);
+            foreach (var leg in itinerary.Legs.Where(l => null != l.Geometry))
+            {
+                var itStart = denseLine.Where(c => c.Lat == leg.Geometry[0].Lat && c.Lng == leg.Geometry[0].Lng)
+                    .First();
+                var itStartIndex = denseLine.IndexOf(itStart);
+                var itEnd = denseLine.Where(c => c.Lat == leg.Geometry[leg.Geometry.Length - 1].Lat && c.Lng == leg.Geometry[leg.Geometry.Length - 1].Lng)
+                    .First();
+                var itEndIndex = denseLine.IndexOf(itEnd);
+                if (itStartIndex <= positionIndex && positionIndex <= itEndIndex)
+                {
+                    double length = 0;
+                    double wayLength = 0;
+                    for (int i = itStartIndex; i < itEndIndex; i++)
+                    {
+                        var dist = GetDistance(denseLine[i], denseLine[i + 1]);
+                        length += dist;
+                        if (i < positionIndex)
+                        {
+                            wayLength += dist;
+                        }
+                    }
+                    TimeSpan delay;
+                    if (length > 0)
+                    {
+                        var pointTime = leg.StartTime + (wayLength) * ((leg.EndTime - leg.StartTime) / (length));
+                        delay = location.Timestamp - pointTime;
+                    }
+                    else
+                    {
+                        delay = location.Timestamp - leg.EndTime;
+                    }
+                    return new PositionOnRoute()
+                    {
+                        LegIndex = Array.IndexOf(itinerary.Legs, leg),
+                        LocationOnRoute = positionOnRoute,
+                        Delay = delay
+                    };
+                }
+            }
+            throw new Exception("Position on route not found");
         }
 
         private double CoordinatePolyLineDistance(List<Coordinate> denseLine, Coordinate x3)
@@ -80,7 +130,7 @@ namespace TravelService.Impl
 
         public TraceMeasures TraceUserOnItinerary(Itinerary itinerary, TraceLocation location)
         {
-            var polyLine = itinerary.Legs.SelectMany(d => d.Geometry).ToList();
+            var polyLine = itinerary.Legs.Where(d => null != d.Geometry).SelectMany(d => d.Geometry).ToList();
             if (polyLine.Count < 2)
             {
                 throw new Exception("Itinerary must have at least two points");

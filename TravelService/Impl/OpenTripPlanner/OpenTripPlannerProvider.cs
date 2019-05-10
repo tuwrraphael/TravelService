@@ -86,7 +86,7 @@ namespace TravelService.Impl.OpenTripPlanner
                 EndTime = DateTimeOffset.FromUnixTimeMilliseconds(i.EndTime),
                 StartTime = DateTimeOffset.FromUnixTimeMilliseconds(i.StartTime),
 
-                Legs = i.Legs.Where(l => l.TransitLeg).Select(l => new Models.Leg()
+                Legs = i.Legs.Select(l => new Models.Leg()
                 {
                     To = new Models.Place()
                     {
@@ -116,7 +116,8 @@ namespace TravelService.Impl.OpenTripPlanner
                         VehicleType = l.Mode
                     },
                     NumStops = l.From.StopIndex.HasValue && l.To.StopIndex.HasValue ? (l.To.StopIndex.Value - l.From.StopIndex.Value) : 0,
-                    Geometry = DecodePolyLine(l.LegGeometry?.Points)
+                    Geometry = DecodePolyLine(l.LegGeometry?.Points),
+                    TransitLeg = l.TransitLeg
                 }).ToArray()
             }).ToArray();
             return new Models.Plan()
