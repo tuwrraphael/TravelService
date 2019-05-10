@@ -20,14 +20,5 @@
         {
             return $"lat:{Lat}|lng:{Lng}";
         }
-
-        public static implicit operator Geolocation.Coordinate(Coordinate d)  // implicit digit to byte conversion operator
-        {
-            return new Geolocation.Coordinate()
-            {
-                Latitude = d.Lat,
-                Longitude = d.Lng
-            };
-        }
     }
 }

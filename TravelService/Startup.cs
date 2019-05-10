@@ -52,6 +52,7 @@ namespace TravelService
             services.AddTransient<ILocationsService, LocationsService>();
             services.AddTransient<IResolvedLocationsStore, ResolvedLocationsStore>();
             services.AddTransient<IDirectionsCache, DirectionsCache>();
+            services.AddTransient<IUserRouteTracer, UserRouteTracer>();
 
             services.Configure<ApiOptions>(Configuration);
 
