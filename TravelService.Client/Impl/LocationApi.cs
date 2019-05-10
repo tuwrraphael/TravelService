@@ -24,7 +24,9 @@ namespace TravelService.Client.Impl
 
         public async Task Put(Coordinate c)
         {
-            var url = $"api/{_userId}/locations/{HttpUtility.UrlEncode(_name)}";
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["term"] = _name;
+            var url = $"api/{_userId}/locations?{query.ToString()}";
             var res = await (await _clientFactory()).PutAsync(url, new StringContent(
                 JsonConvert.SerializeObject(c), Encoding.UTF8, "application/json"));
             if (!res.IsSuccessStatusCode)
@@ -35,7 +37,9 @@ namespace TravelService.Client.Impl
 
         public async Task<bool> Resolve()
         {
-            var url = $"api/{_userId}/locations/{HttpUtility.UrlEncode(_name)}";
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["term"] = _name;
+            var url = $"api/{_userId}/locations/{query.ToString()}";
             var res = await (await _clientFactory()).GetAsync(url);
             return res.IsSuccessStatusCode;
         }
