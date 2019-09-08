@@ -67,10 +67,10 @@ namespace TravelService.Impl
             {
                 return null;
             }
-            string cacheKey = await directionsCache.PutAsync(plan);
+            await directionsCache.PutAsync(plan.Id, plan);
             return new DirectionsResult()
             {
-                CacheKey = cacheKey,
+                CacheKey = plan.Id,
                 TransitDirections = plan.GetTransitDirections()
             };
         }

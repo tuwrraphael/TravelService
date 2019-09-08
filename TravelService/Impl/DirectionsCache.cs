@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using System;
 using System.Threading.Tasks;
 using TravelService.Models;
 using TravelService.Services;
@@ -20,11 +19,9 @@ namespace TravelService.Impl
             return memoryCache.Get<Plan>(key);
         }
 
-        public async Task<string> PutAsync(Plan directions)
+        public async Task PutAsync(string id, Plan directions)
         {
-            var key = Guid.NewGuid().ToString();
-            memoryCache.Set(key, directions);
-            return key;
+            memoryCache.Set(id, directions);
         }
     }
 }

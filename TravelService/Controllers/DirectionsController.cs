@@ -15,15 +15,18 @@ namespace TravelService.Controllers
         private readonly IDirectionsCache directionsCache;
         private readonly ILogger<DirectionsController> _logger;
         private readonly IUserRouteTracer _userRouteTracer;
+        private readonly ISubscriptionService _subscriptionService;
 
         public DirectionsController(IDirectionService directionsService,
             IDirectionsCache directionsCache, ILogger<DirectionsController> logger,
-            IUserRouteTracer userRouteTracer)
+            IUserRouteTracer userRouteTracer,
+            ISubscriptionService subscriptionService)
         {
             this.directionsService = directionsService;
             this.directionsCache = directionsCache;
             _logger = logger;
             _userRouteTracer = userRouteTracer;
+            _subscriptionService = subscriptionService;
         }
 
         [HttpGet("directions/transit")]
@@ -119,6 +122,21 @@ namespace TravelService.Controllers
             {
                 Response.Headers.Add("ETag", $"\"{cacheKey}\"");
                 return Ok(res.GetTransitDirections());
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost("directions/{cacheKey}/subscribe")]
+        public async Task<IActionResult> Subscribe(string cacheKey, string callback)
+        {
+            var res = await directionsCache.GetAsync(cacheKey);
+            if (null != res)
+            {
+                var id = await _subscriptionService.Subscribe(cacheKey, callback);
+                return StatusCode(201, id);
             }
             else
             {

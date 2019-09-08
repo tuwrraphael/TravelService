@@ -7,6 +7,7 @@ namespace TravelService.Models
         public Itinerary[] Itineraries { get; set; }
         public Place From { get; set; }
         public Place To { get; set; }
+        public string Id { get; set; }
     }
 
     public class Itinerary

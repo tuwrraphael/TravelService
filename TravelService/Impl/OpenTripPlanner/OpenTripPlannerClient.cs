@@ -19,6 +19,7 @@ namespace TravelService.Impl.OpenTripPlanner
     public class OpenTripPlannerResponse
     {
         public Plan Plan { get; set; }
+        public string Id { get; set; }
     }
 
     public class Plan
@@ -91,7 +92,23 @@ namespace TravelService.Impl.OpenTripPlanner
                 throw new OpenTripPlannerException($"Request to OpenTripPlanner returned : {res.StatusCode}");
             }
             var content = await res.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<OpenTripPlannerResponse>(content);
+            var data = JsonConvert.DeserializeObject<OpenTripPlannerResponse>(content);
+            if (null != res.Headers.ETag)
+            {
+                data.Id = res.Headers.ETag.Tag.Replace("\"", string.Empty);
+            }
+            return data;
+        }
+
+        public async Task Subscribe(string routeId, Uri callback)
+        {
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["callback"] = callback.ToString();
+            var res = await _client.PostAsync($"routes/{routeId}/subscribe?{query.ToString()}", null);
+            if (!res.IsSuccessStatusCode)
+            {
+                throw new OpenTripPlannerException($"Subscribe returned : {res.StatusCode}");
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using TravelService.Client.ApiDefinition;
 using TravelService.Models.Directions;
 
@@ -39,6 +40,21 @@ namespace TravelService.Client.Impl
                 return null;
             }
             throw new TravelServiceException($"Could not get transit directions: {res.StatusCode}");
+        }
+
+        public async Task<string> Subscribe(Uri callback)
+        {
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["callback"] = callback.ToString();
+            var res = await (await clientFactory()).PostAsync($"api/directions/{key}/subscribe?{query.ToString()}", null);
+            if (res.IsSuccessStatusCode)
+            {
+                return await res.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                throw new TravelServiceException($"Could not subscribe: {res.StatusCode}");
+            }
         }
     }
 }

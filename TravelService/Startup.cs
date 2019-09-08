@@ -37,8 +37,6 @@ namespace TravelService
         public IConfiguration Configuration { get; }
         public IHostingEnvironment HostingEnvironment { get; }
 
-
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -53,8 +51,10 @@ namespace TravelService
             services.AddTransient<IResolvedLocationsStore, ResolvedLocationsStore>();
             services.AddTransient<IDirectionsCache, DirectionsCache>();
             services.AddTransient<IUserRouteTracer, UserRouteTracer>();
+            services.AddTransient<ISubscriptionService, SubscriptionService>();
 
             services.Configure<ApiOptions>(Configuration);
+            services.Configure<TravelServiceOptions>(Configuration);
 
             var authProviderBuilder = services.AddBearerTokenAuthenticationProvider("travelService")
                 .UseMemoryCacheTokenStore()

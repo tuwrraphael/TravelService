@@ -18,11 +18,14 @@ namespace TravelService.Impl.EF
         }
 
         public DbSet<PersistedLocation> PersistedLocations { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PersistedLocation>()
+                .HasKey(v => v.Id);
+            modelBuilder.Entity<Subscription>()
                 .HasKey(v => v.Id);
             modelBuilder.Entity<PersistedLocation>()
                 .Property(b => b.Attributes)

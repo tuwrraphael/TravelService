@@ -7,8 +7,6 @@ using GeoCalculator = Geolocation.GeoCalculator;
 
 namespace TravelService.Impl
 {
-
-
     public class UserRouteTracer : IUserRouteTracer
     {
         private static readonly NormalDistributionTable NormalDistributionTable = new NormalDistributionTable(2);

@@ -12,4 +12,11 @@ namespace TravelService.Impl.EF
         public double Lng { get; set; }
         public string Address { get; set; }
     }
+
+    public class Subscription
+    {
+        public string Id { get; set; }
+        public string RouteId { get; set; }
+        public string Callback { get; set; }
+    }
 }
