@@ -38,7 +38,8 @@ namespace TravelService.Impl
             }
             route.Id = sub.RouteId;
             await _directionsCache.PutAsync(sub.RouteId, route.ToPlan());
-            await new HttpClient().PostAsync(sub.Callback, new StringContent(
+            var cl = new HttpClient();
+            await cl.PostAsync(sub.Callback, new StringContent(
                 JsonConvert.SerializeObject(new DirectionsUpdate()
                 {
                     Id = sub.RouteId
