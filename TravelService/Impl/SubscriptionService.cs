@@ -48,7 +48,7 @@ namespace TravelService.Impl
         public async Task<string> Subscribe(string routeId, string callback)
         {
             var id = Guid.NewGuid().ToString();
-            await _openTripPlannerClient.Subscribe(routeId, new Uri(_options.CallbackUri, $"callback/otp/{id}"));
+            await _openTripPlannerClient.Subscribe(routeId, new Uri(_options.CallbackUri, $"api/callback/otp/{id}"));
             await _travelServiceContext.AddAsync(new Subscription()
             {
                 Id = id,
