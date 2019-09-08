@@ -29,8 +29,8 @@ namespace TravelService.Client.Impl
             query["lng"] = location.Coordinate.Lng.ToString(CultureInfo.InvariantCulture);
             query["accuracyRadius"] = location.Accuracy.Radius.ToString(CultureInfo.InvariantCulture);
             query["accuracyConfidence"] = location.Accuracy.Confidence.ToString(CultureInfo.InvariantCulture);
-            query["timeStamp"] = location.Timestamp.ToString("o");
-            var url = $"api/directions/{_directionsKey}/itinerarys/{_index}/trace?{query.ToString()}";
+            query["timestamp"] = location.Timestamp.ToString("o");
+            var url = $"api/directions/{_directionsKey}/itineraries/{_index}/trace?{query.ToString()}";
             var res = await (await _clientFactory()).GetAsync(url);
             if (res.IsSuccessStatusCode)
             {
