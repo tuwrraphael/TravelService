@@ -15,13 +15,13 @@ namespace TravelService.Impl
     {
         private readonly IOpenTripPlannerClient _openTripPlannerClient;
         private readonly TravelServiceContext _travelServiceContext;
-        private readonly DirectionsCache _directionsCache;
+        private readonly IDirectionsCache _directionsCache;
         private readonly TravelServiceOptions _options;
 
         public SubscriptionService(IOpenTripPlannerClient openTripPlannerClient,
             TravelServiceContext travelServiceContext,
             IOptions<TravelServiceOptions> optionsAccessor,
-            DirectionsCache directionsCache)
+            IDirectionsCache directionsCache)
         {
             _openTripPlannerClient = openTripPlannerClient;
             _travelServiceContext = travelServiceContext;
